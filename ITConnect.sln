@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36310.24 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITConnect", "ITConnect\ITConnect.csproj", "{94EB01F2-5773-441E-9D0F-42922AC4C8C5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{94EB01F2-5773-441E-9D0F-42922AC4C8C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94EB01F2-5773-441E-9D0F-42922AC4C8C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94EB01F2-5773-441E-9D0F-42922AC4C8C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94EB01F2-5773-441E-9D0F-42922AC4C8C5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {24B455CE-3752-4B42-987E-DCC5DE264D2F}
+	EndGlobalSection
+EndGlobal
