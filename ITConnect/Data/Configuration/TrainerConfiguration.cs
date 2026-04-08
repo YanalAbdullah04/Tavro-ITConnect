@@ -1,0 +1,33 @@
+﻿using ITConnect.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace ITConnect.Data.Configuration
+{
+    public class TrainerConfiguration : IEntityTypeConfiguration<Trainer>
+    {
+        public void Configure(EntityTypeBuilder<Trainer> builder)
+        {
+
+            builder.HasKey(u=>u.UserId);
+            builder.HasOne(u => u.User)
+                .WithOne()
+                .HasForeignKey<Trainer>(u => u.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(c => c.Company)
+                .WithMany()
+                .HasForeignKey(t=>t.CompanyId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+
+            builder.Property(x => x.GithubUsername).IsRequired();
+            builder.Property(x=>x.Specialization).IsRequired();
+           
+
+
+
+        }
+    }
+}
+
