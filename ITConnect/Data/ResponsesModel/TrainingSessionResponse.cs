@@ -1,6 +1,6 @@
 ﻿using ITConnect.Models;
 
-namespace ITConnect.Data.ResponsesModel.TrainingSession
+namespace ITConnect.Data.ResponsesModel
 {
     public class TrainingSessionResponse
     {

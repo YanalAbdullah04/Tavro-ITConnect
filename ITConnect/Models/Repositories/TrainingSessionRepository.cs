@@ -1,5 +1,5 @@
 ﻿using ITConnect.Data;
-using ITConnect.Data.ResponsesModel.TrainingSession;
+using ITConnect.Data.ResponsesModel;
 using ITConnect.Models.Repository.cs;
 using Microsoft.EntityFrameworkCore;
 
