@@ -1,5 +1,5 @@
 ﻿using ITConnect.Data.RequestsModel.TrainingSessionDtos;
-using ITConnect.Data.ResponsesModel.TrainingSession;
+using ITConnect.Data.ResponsesModel;
 
 namespace ITConnect.Services
 {

@@ -1,6 +1,5 @@
 using ITConnect.Data;
 using ITConnect.Models;
-
 using ITConnect.Models.Repositories;
 using ITConnect.Models.Repositories.UnitOfWork;
 using ITConnect.Models.Repository.cs;
@@ -8,20 +7,16 @@ using ITConnect.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
-
-
-
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 //builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 
@@ -30,7 +25,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
     options.UseSqlServer(builder.Configuration.GetConnectionString("sqlcon"));
 });
-
 
 //identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -62,9 +56,6 @@ builder.Services.AddAuthentication(options =>
     };
 
 });
-
-
-
 //**********************************************************
 //user services
 builder.Services.AddScoped<IGenericRepository<Company>, GenericRepository<Company>>();
@@ -82,15 +73,18 @@ builder.Services.AddScoped<ITrackService, TrackServices>();
 builder.Services.AddScoped<ITrainingSessionService, TrainingSessionService>();
 builder.Services.AddScoped<ITrainingSessionRepository, TrainingSessionRepository>();
 
-
-
+// Post Services
+builder.Services.AddScoped<IPostRepository,PostRepository>();
+builder.Services.AddScoped<IPostService,PostService>();
 
 
 var app = builder.Build();
-
+app.UseSwagger();
+app.UseSwaggerUI(); 
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 AppDbInitilizer.SeedRoles(app).Wait();
 app.Run();
