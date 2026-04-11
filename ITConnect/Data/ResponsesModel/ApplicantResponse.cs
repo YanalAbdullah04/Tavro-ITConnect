@@ -1,4 +1,5 @@
 ﻿using ITConnect.Models;
+﻿using ITConnect.Models;
 
 namespace ITConnect.Data.ResponsesModel
 {
@@ -8,7 +9,7 @@ namespace ITConnect.Data.ResponsesModel
         public string TraineeId { get; set; }// composit
 
         public string TrainingSessionId { get; set; }//composit
-        public string Status { get; set; }
+        public ApplicantStatus Status { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     }
