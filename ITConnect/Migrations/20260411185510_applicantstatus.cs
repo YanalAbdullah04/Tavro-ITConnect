@@ -5,7 +5,7 @@
 namespace ITConnect.Migrations
 {
     /// <inheritdoc />
-    public partial class baseentityontrackonly : Migration
+    public partial class applicantstatus : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

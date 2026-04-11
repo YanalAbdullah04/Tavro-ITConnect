@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ITConnect.Migrations
 {
     /// <inheritdoc />
-    public partial class initialmigration : Migration
+    public partial class @struct : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -184,7 +184,8 @@ namespace ITConnect.Migrations
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WebsiteLink = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LogoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    LogoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Id = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -226,7 +227,8 @@ namespace ITConnect.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Specialization = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     GithubUsername = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImgUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ImgUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -378,7 +380,8 @@ namespace ITConnect.Migrations
                     PortfolioLink = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Skills = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ResumeUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Id = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

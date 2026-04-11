@@ -1,9 +1,12 @@
-﻿namespace ITConnect.Data.RequestsModel.PostDTOs
+﻿
+using ITConnect.Models;
+
+namespace ITConnect.Data.RequestsModel.PostDTOs
 {
     public class UpdatePostRequest
     {
-        public string id { get; set; }
-        public string Status { get; set; }
+        public string Id { get; set; }
+        public PostStatus? Status { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTime Deadline { get; set; }

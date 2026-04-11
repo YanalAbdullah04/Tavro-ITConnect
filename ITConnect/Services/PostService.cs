@@ -29,8 +29,8 @@ namespace ITConnect.Services
                 ReqSkills = postRequest.ReqSkills,
                 Responsibility = postRequest.Responsibility,
                 Title = postRequest.Title,
-                TrainingSessionId = postRequest.TrainingSessionId, Status=postRequest.Status,
-                
+                TrainingSessionId = postRequest.TrainingSessionId, 
+                Status = postRequest.Status ?? PostStatus.Pending
             };
             return await postRepository.AddAsync(post);
         }
@@ -52,13 +52,13 @@ namespace ITConnect.Services
 
         public async Task<bool> UpdatePostAsync(UpdatePostRequest updatePostRequest)
         {
-            var post = await postRepository.GetByIdAsync(updatePostRequest.id);
+            var post = await postRepository.GetByIdAsync(updatePostRequest.Id);
             if (post == null)
                 return false;
 
             post.Description = updatePostRequest.Description;
             post.Title = updatePostRequest.Title;
-            post.Status = updatePostRequest.Status;
+            post.Status = updatePostRequest.Status ?? post.Status;
             post.Deadline = updatePostRequest.Deadline;
             post.Benefits = updatePostRequest.Benefits;
             post.Responsibility = updatePostRequest.Responsibility;
