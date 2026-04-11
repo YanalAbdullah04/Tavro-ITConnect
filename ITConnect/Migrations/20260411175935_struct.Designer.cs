@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITConnect.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260403191347_baseentityontrackonly")]
-    partial class baseentityontrackonly
+    [Migration("20260411175935_struct")]
+    partial class @struct
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -149,6 +149,9 @@ namespace ITConnect.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LogoUrl")
@@ -401,6 +404,9 @@ namespace ITConnect.Migrations
                     b.Property<string>("CompanyId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -440,6 +446,9 @@ namespace ITConnect.Migrations
 
                     b.Property<string>("GithubUsername")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImgUrl")

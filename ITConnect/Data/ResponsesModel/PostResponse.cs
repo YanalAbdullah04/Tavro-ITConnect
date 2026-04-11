@@ -9,7 +9,7 @@ namespace ITConnect.Data.ResponsesModel
         public string Description { get; set; }
         public DateTime Deadline { get; set; }
         public string ReqSkills { get; set; }
-        public string Status { get; set; }
+        public PostStatus Status { get; set; }
         public string TrainingSessionId { get; set; } // unique
         public int NumberOfApplicants { get; set; }
 

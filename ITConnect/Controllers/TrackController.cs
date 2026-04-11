@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace ITConnect.Controllers
 {
+    [Authorize(Roles = "Company")]
     [Route("api/Track")]
     [ApiController]
     public class TrackController : ControllerBase
@@ -31,7 +32,7 @@ namespace ITConnect.Controllers
                 return NotFound();
         
         }
-        
+        [Authorize(Roles = "Company")]
         [HttpPost]
         public async Task<IActionResult> addtrack(AddTrackRequest addTrackRequest) { 
             
@@ -43,6 +44,7 @@ namespace ITConnect.Controllers
             
         
         }
+        [Authorize(Roles = "Company")]
         [HttpPut]
         public async Task<IActionResult> UpdateTrack(UpdateTrackRequest updateTrackRequest)
         {

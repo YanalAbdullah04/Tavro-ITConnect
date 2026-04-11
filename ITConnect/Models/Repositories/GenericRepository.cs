@@ -22,7 +22,7 @@ namespace ITConnect.Models.Repository.cs
         }
         public async Task<bool> ExistByIdAsync(string id)
         {
-            return await dbset.AnyAsync(x=>x.Id.ToString().Equals("11111"));
+            return await dbset.AnyAsync(x=>x.Id.ToString().Equals(id));
         }
 
         public async Task<T> GetByIdAsync(string id)
