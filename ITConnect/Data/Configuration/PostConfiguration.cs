@@ -20,11 +20,11 @@ namespace ITConnect.Data.Configuration
             builder.HasOne(x => x.Company)
                 .WithMany()
                 .HasForeignKey(x => x.CompanyId)
-                .OnDelete(DeleteBehavior.NoAction);  
+                .OnDelete(DeleteBehavior.NoAction);
 
 
             builder.Property(x => x.Responsibility).IsRequired();
-            builder.Property(x => x.Status).IsRequired();
+
             builder.Property(x => x.Title).IsRequired();
             builder.Property(x => x.Benefits).IsRequired();
             builder.Property(x => x.Deadline).IsRequired();
@@ -32,7 +32,9 @@ namespace ITConnect.Data.Configuration
             builder.Property(x => x.ReqSkills).IsRequired();
             builder.Property(x => x.Responsibility).IsRequired();
 
-
+            builder.Property(p => p.Status).HasConversion(
+           v => v.ToString(),                 // To DB
+           v => PostStatus.FromString(v));    // From DB
 
         }
     }

@@ -32,7 +32,8 @@ namespace ITConnect.Data.Configuration
                 .OnDelete(DeleteBehavior.NoAction);
 
 
-            builder.Property(x => x.Status).IsRequired();
+            builder.Property(x => x.Status).IsRequired()
+                .HasConversion(v => v.ToString(), v => ApplicantStatus.FromString(v));
 
 
 
