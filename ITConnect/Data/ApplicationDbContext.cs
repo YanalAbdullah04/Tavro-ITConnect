@@ -17,7 +17,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Company> Companies { get; set; }
     public DbSet<Announcement> Announcements { get; set; }
     public DbSet<Applicant> Applicants { get; set; }
-    public DbSet<EvaluateTask> EvaluateTasks { get; set; }
+    //public DbSet<EvaluateTask> EvaluateTasks { get; set; }
     public DbSet<GithubAccount> GithubAccounts { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<TaskAssignment> TaskAssignments { get; set; }

@@ -9,6 +9,8 @@
         public Trainee Trainee { get; set; }
         public bool Status  { get; set; }
         public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
+        public string? Feedback { get; set; }
+        public string? Grad { get; set; }
     }
-
+    //traineetask
 }
