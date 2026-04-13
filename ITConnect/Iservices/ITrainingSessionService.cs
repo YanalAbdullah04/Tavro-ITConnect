@@ -1,7 +1,7 @@
 ﻿using ITConnect.Data.RequestsModel.TrainingSessionDtos;
 using ITConnect.Data.ResponsesModel;
 
-namespace ITConnect.Services
+namespace ITConnect.Services.Iservices
 {
     public interface ITrainingSessionService
     {

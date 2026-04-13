@@ -1,7 +1,8 @@
 ﻿using ITConnect.Data.RequestsModel.TrackDTOs;
+using ITConnect.Data.ResponseModel;
 using ITConnect.Models;
 using ITConnect.Models.Repository.cs;
-using ITConnect.Services;
+using ITConnect.Services.Iservices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpGet]
-        public async Task<IActionResult> getall() { 
+        public async Task<ActionResult<TrackResponse>> getall() { 
          var tracks =await trackService.GetAllTracksAsync();
             if (tracks != null)
                 return Ok(tracks);

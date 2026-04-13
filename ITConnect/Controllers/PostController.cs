@@ -1,6 +1,7 @@
 ﻿using ITConnect.Data.RequestsModel.PostDTOs;
+using ITConnect.Data.ResponsesModel;
 using ITConnect.Models;
-using ITConnect.Services;
+using ITConnect.Services.Iservices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,10 +22,11 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpGet]
-        public async Task<IActionResult> getall()
+        public async Task<ActionResult<PostResponse>> getall()
         {
             var result = await postService.GetAllPostsAsync();
             return Ok(result);
+
         }
 
         [Authorize(Roles = "Company")]

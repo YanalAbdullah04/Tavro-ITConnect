@@ -1,5 +1,6 @@
 ﻿using ITConnect.Data.RequestsModel.AuthDTOs;
-using ITConnect.Services;
+using ITConnect.Data.ResponsesModel;
+using ITConnect.Services.Iservices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
@@ -19,7 +20,7 @@ namespace ITConnect.Controllers
         }
 
         [HttpPost("Register/Company")]
-        public async Task<IActionResult> Companysignup(RegisterationRequest registerationRequest)
+        public async Task<ActionResult<RegistrationAuthResponse>> Companysignup(RegisterationRequest registerationRequest)
         {
             var result = await AccountServices.RegisterCompanyAsync(registerationRequest);
             try
@@ -35,7 +36,7 @@ namespace ITConnect.Controllers
             }
         }
         [HttpPost("Register/Trainee")]
-        public async Task<IActionResult> Traineesignup(RegisterationRequest registerationRequest)
+        public async Task<ActionResult<RegistrationAuthResponse>> Traineesignup(RegisterationRequest registerationRequest)
         {
             var result = await AccountServices.RegisterTraineeAsync(registerationRequest);
             try
@@ -53,7 +54,7 @@ namespace ITConnect.Controllers
 
 
         [HttpPost("Login")]
-        public async Task<IActionResult> login(LoginDto loginDto)
+        public async Task<ActionResult<LoginAuthResponse>> login(LoginDto loginDto)
         {
             var result = await AccountServices.Login(loginDto);
             if (!result.IsSuccess) 

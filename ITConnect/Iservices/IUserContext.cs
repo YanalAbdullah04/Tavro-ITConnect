@@ -1,4 +1,4 @@
-﻿namespace ITConnect.Services
+﻿namespace ITConnect.Services.Iservices
 {
     public interface IUserContext
     {

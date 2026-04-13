@@ -2,7 +2,7 @@
 using ITConnect.Data.ResponsesModel;
 using ITConnect.Models;
 
-namespace ITConnect.Services
+namespace ITConnect.Services.Iservices
 {
     public interface IPostService
     {

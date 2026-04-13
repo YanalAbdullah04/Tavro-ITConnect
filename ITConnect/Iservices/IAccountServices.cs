@@ -4,7 +4,7 @@ using ITConnect.Data.ResponsesModel;
 using ITConnect.Models.Repositories.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 
-namespace ITConnect.Services
+namespace ITConnect.Services.Iservices
 {
     public interface IAccountServices
     {

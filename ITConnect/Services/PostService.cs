@@ -3,6 +3,7 @@ using ITConnect.Data.ResponsesModel;
 using ITConnect.Models;
 using ITConnect.Models.Repositories;
 using ITConnect.Models.Repository.cs;
+using ITConnect.Services.Iservices;
 using System.Threading.Tasks;
 
 namespace ITConnect.Services
@@ -64,7 +65,7 @@ namespace ITConnect.Services
             post.Responsibility = updatePostRequest.Responsibility;
             post.ReqSkills = updatePostRequest.ReqSkills;
             post.TrainingSessionId = updatePostRequest.TrainingSessionId;
-
+            
             return await postRepository.UpdateAsync(post.Id, post);
         }
     }

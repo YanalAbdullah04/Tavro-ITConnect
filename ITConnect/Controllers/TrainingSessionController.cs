@@ -1,5 +1,6 @@
 ﻿using ITConnect.Data.RequestsModel.TrainingSessionDtos;
-using ITConnect.Services;
+using ITConnect.Data.ResponsesModel;
+using ITConnect.Services.Iservices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -19,7 +20,7 @@ namespace ITConnect.Controllers
         }
         [Authorize(Roles = "Company")]
         [HttpGet]
-        public async Task<IActionResult> getall()
+        public async Task<ActionResult<TrainingSessionResponse>> getall()
         {
             var result = await trainingSessionService.GetAllTrainingSessionResponseAsync();
             return Ok(result);

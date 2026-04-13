@@ -34,8 +34,8 @@ namespace ITConnect.Models.Repositories
                 Status = p.Status,
                 Title = p.Title,
                 TrainingSessionId = p.TrainingSessionId,
-                NumberOfApplicants = Db.Applicants.Where(a => a.TrainingSessionId == p.TrainingSessionId).Count(),
-                
+
+                NumberOfApplicants = Db.Applicants.Where(a => a.TrainingSessionId == p.TrainingSessionId).Count(),              
             }
             );
             return response;
