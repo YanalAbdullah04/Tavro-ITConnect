@@ -77,6 +77,8 @@ builder.Services.AddScoped<ITrainingSessionRepository, TrainingSessionRepository
 builder.Services.AddScoped<IPostRepository,PostRepository>();
 builder.Services.AddScoped<IPostService,PostService>();
 
+// Company Dashboard Services
+builder.Services.AddScoped<ICompanyDashboardService, CompanyDashboardService>();
 
 var app = builder.Build();
 app.UseSwagger();
