@@ -44,6 +44,9 @@ public class ApplicationDbContext : IdentityDbContext
         builder.Entity<Post>().HasQueryFilter(t =>
         (userContext.IsCompany && t.CompanyId == userContext.CompanyId));
 
+        builder.Entity<Applicant>().HasQueryFilter(t =>
+        (userContext.IsCompany && t.CompanyId == userContext.CompanyId));
+
 
     }
 
