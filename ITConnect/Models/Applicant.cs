@@ -7,6 +7,25 @@
     [JsonConverter(typeof(ApplicantStatusJsonConverter))]
     public readonly struct ApplicantStatus
     {
+        public static bool TryParse(string? value, out ApplicantStatus result)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                result = Pending; // or default
+                return false;
+            }
+
+            try
+            {
+                result = FromString(value);
+                return true;
+            }
+            catch
+            {
+                result = Pending;
+                return false;
+            }
+        }
         public string Value { get; }
         private ApplicantStatus(string value) { Value = value; }
 

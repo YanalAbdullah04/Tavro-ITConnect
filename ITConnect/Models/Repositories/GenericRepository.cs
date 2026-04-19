@@ -68,5 +68,9 @@ namespace ITConnect.Models.Repository.cs
             return await dbset.CountAsync();
         }
 
+        public IQueryable<T> GetPage(int page = 1, int pagesize = 10)
+        {
+            return  dbset.Skip((page-1)*pagesize).Take(pagesize).AsQueryable();
+        }
     }
 }

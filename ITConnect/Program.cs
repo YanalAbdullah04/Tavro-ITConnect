@@ -1,7 +1,9 @@
 using ITConnect.Data;
+using ITConnect.Iservices;
 using ITConnect.Models;
 using ITConnect.Models.Repositories;
 using ITConnect.Models.Repositories.UnitOfWork;
+using ITConnect.Models.Repository;
 using ITConnect.Models.Repository.cs;
 using ITConnect.Services;
 using ITConnect.Services.Iservices;
@@ -77,6 +79,11 @@ builder.Services.AddScoped<ITrainingSessionRepository, TrainingSessionRepository
 // Post Services
 builder.Services.AddScoped<IPostRepository,PostRepository>();
 builder.Services.AddScoped<IPostService,PostService>();
+
+
+//applicant services
+builder.Services.AddScoped<IApplicantRepository, ApplicantRepository>();
+builder.Services.AddScoped<IApplicantService, ApplicantServie>();
 
 
 var app = builder.Build();

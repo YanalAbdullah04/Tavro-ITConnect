@@ -30,19 +30,23 @@
         {
 
         }
-        public static PagedResults<T> Create(IEnumerable<T> item,
-            int totalcount,
+        public static PagedResults<T> Create(List<T> item,int totlCount,
             int currentpage,
             int pagesize)
         {
+
             return new PagedResults<T>
             {
-                Items = item,
-                TotalCount = totalcount,
+                TotalCount = totlCount,
+                Items =item,
+                
                 CurentPage = currentpage,
                 PageSize = pagesize
             };
+
+
         }
+
 
     }
 }
