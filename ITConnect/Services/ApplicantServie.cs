@@ -1,7 +1,7 @@
 ﻿using ITConnect.Data.ResponsesModel;
 using ITConnect.Iservices;
 using ITConnect.Models;
-using ITConnect.Models.Repositories;
+using ITConnect.Models.Repository.cs;
 
 namespace ITConnect.Services
 {
@@ -22,12 +22,14 @@ namespace ITConnect.Services
 
         }
 
-        public async Task<IEnumerable<ApplicantResponse>> GetAllApplicantAsync()
+        public async Task<PagedResults<ApplicantResponse>> GetAllApplicantAsync(int curentPage, int pageSize, string? searchstring, ApplicantStatus? status, string? trackid)
         {
-            return await applicantRepository.GetApplicantResponseAsync();
+            var result= await applicantRepository.GetApplicantResponsePageAsync(curentPage,pageSize,searchstring, status,trackid);
+       
+            return result;
         }
 
-        public async Task<ApplicantResponseDetailes> GetApplicantResponseDetailesAsync(string applicantId,string traineeId, string trainingSessionId)
+        public async Task<ApplicantResponseDetailes> GetApplicantResponseDetailesAsync( string applicantId,string traineeId, string trainingSessionId)
         {
 
             return await applicantRepository.GetApplicantResponseDetailesAsync(traineeId,trainingSessionId);
@@ -41,6 +43,7 @@ namespace ITConnect.Services
             applicant.Status = status;
             return await applicantRepository.UpdateAsync(applicantId, applicant);
         }
+
 
 
     }

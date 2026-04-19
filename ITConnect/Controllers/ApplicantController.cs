@@ -23,9 +23,14 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpGet]
-        public async Task<ActionResult<List<ApplicantResponse>>> getall() {
-            var user = User.Identity;
-            var reult = await applicantService.GetAllApplicantAsync();
+        public async Task<ActionResult<PagedResults<ApplicantResponse>>> getall([FromQuery] string? SearchString,
+            [FromQuery] ApplicantStatus? status,
+            [FromQuery] Guid? TrackId,
+            [FromQuery] int CurentPage=1,
+            [FromQuery]int PageSize=5
+            ) {
+
+            var reult = await applicantService.GetAllApplicantAsync(CurentPage,PageSize,SearchString,status,TrackId.ToString());
             return Ok(reult);
       
         }

@@ -7,11 +7,13 @@ namespace ITConnect.Models.Repository.cs
         Task<T> GetByIdAsync(string id);
         Task<bool> ExistByIdAsync(string id);
         Task<IEnumerable<T>> GetAllAsync();
-      //  Task<IEnumerable<T>> GetPage(int page = 1, int pagesize = 10);
+        IQueryable<T> GetPage(int page = 1, int pagesize = 10);
         Task<bool> AddAsync(T entity);
         Task<bool> UpdateAsync(string Id,T entity);
         Task<bool> DeleteAsync(string id, T entity);
         Task<int> countAsync();
+
+
 
 
 

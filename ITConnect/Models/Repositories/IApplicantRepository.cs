@@ -1,15 +1,20 @@
 ﻿using ITConnect.Data.ResponsesModel;
-using ITConnect.Models.Repository.cs;
 
-namespace ITConnect.Models.Repositories
+namespace ITConnect.Models.Repository.cs;
+
+public interface IApplicantRepository:IGenericRepository<Applicant>
 {
-    public interface IApplicantRepository :IGenericRepository<Applicant>
-    {
-        Task<ApplicantResponse> GetApplicantResponseAsync(Applicant Applicant);
-        Task<ApplicantResponseDetailes> GetApplicantResponseDetailesAsync(string TraineeId, string TrainingSessionId);
-        Task<List<ApplicantResponse>> GetApplicantResponseAsync();
-        IQueryable<ApplicantResponse> GetApplicantResponseeQuery();
-        IQueryable<ApplicantResponseDetailes> GetApplicantResponseDetailesQuery(string traineeId, string trainingSessionId);
+    Task<PagedResults<ApplicantResponse>> GetApplicantResponsePageAsync(
+        int currentpage,
+        int pagesize,
+        string? searchstring,
+        ApplicantStatus? status,
+        string? trackid
+    );
 
-    }
+    Task<ApplicantResponseDetailes> GetApplicantResponseDetailesAsync(
+        string traineeId,
+        string trainingSessionId
+    );
+
 }
