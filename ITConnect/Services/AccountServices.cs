@@ -242,6 +242,22 @@ namespace ITConnect.Services
             RegistrationAuthResponse response = new RegistrationAuthResponse() { Token = jwtoken, Expiration = token.ValidTo };
             return response;
         }
-        
+
+
+
+        public async Task<bool> UpdateUserIdentityAsync(string userId, string email, string phone)
+        {
+            var user = await UserManager.FindByIdAsync(userId);
+            if (user == null) throw new Exception("User not found");
+
+            user.Email = email;
+            user.PhoneNumber = phone;
+
+           var result= await UserManager.UpdateAsync(user);
+            if (result.Succeeded)
+                return true;
+            return false;
+        }
+
     }
 }

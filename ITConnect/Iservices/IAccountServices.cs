@@ -15,5 +15,6 @@ namespace ITConnect.Services.Iservices
         public  Task<RegistrationAuthResponse> RegisterCompanyAsync(RegisterationRequest registerCompanyRequest);
         public  Task<RegistrationAuthResponse> RegisterTraineeAsync(RegisterationRequest registerCompanyRequest);
         public Task<LoginAuthResponse> Login(LoginDto logInDto);
+        public Task<bool> UpdateUserIdentityAsync(string userId, string email, string phone);
     }
 }

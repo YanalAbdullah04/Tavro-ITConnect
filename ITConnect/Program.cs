@@ -85,6 +85,10 @@ builder.Services.AddScoped<IPostService,PostService>();
 builder.Services.AddScoped<IApplicantRepository, ApplicantRepository>();
 builder.Services.AddScoped<IApplicantService, ApplicantServie>();
 
+//Trainer Services
+builder.Services.AddScoped<ITrainerService, TrainerService>();
+builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
+ 
 
 var app = builder.Build();
 app.UseSwagger();
@@ -95,4 +99,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 AppDbInitilizer.SeedRoles(app).Wait();
+
 app.Run();
