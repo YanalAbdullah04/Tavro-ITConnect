@@ -85,6 +85,7 @@ namespace ITConnect.Models.Repositories
                     Email = t.User.Email,
                     Phone = t.User.PhoneNumber,
                     Specialty = t.Specialization,
+                    GitHubAccount=t.GithubUsername,
                     TotalTrainingsCount = Db.TrainingSessions.Count(ts => ts.TrainerId == trainerId),
                     TotalStudentsCount = Db.Trainees.Count(tr => tr.TrainingSession.TrainerId == trainerId),
                     TotalTasksCount = Db.ApplicationTask.Count(at => at.TrainerId == trainerId)

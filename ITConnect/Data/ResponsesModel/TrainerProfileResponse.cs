@@ -7,6 +7,7 @@
         public string Specialty { get; set; } 
         public string Email { get; set; }
         public string Phone { get; set; }
+        public string GitHubAccount { get; set; }
 
         public int TotalStudentsCount { get; set; }
         public int TotalTrainingsCount { get; set; }

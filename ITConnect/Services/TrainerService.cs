@@ -49,7 +49,7 @@ namespace ITConnect.Services
             var trainer = await TrainerRepository.GetByIdAsync(trainerid);
             if (trainer == null)
                 throw new Exception("trainer not found");
-            return await TrainerRepository.DeleteAsync(trainerid, trainer);
+            return await accountServices.DeleteUserAccountAsync(trainerid);
         }
     }
 }

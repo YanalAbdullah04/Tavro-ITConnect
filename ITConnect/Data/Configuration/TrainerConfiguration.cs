@@ -21,8 +21,8 @@ namespace ITConnect.Data.Configuration
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.Property(x => x.ImgUrl).IsRequired(false);
-            builder.Property(x => x.GithubUsername).IsRequired();
-            builder.Property(x=>x.Specialization).IsRequired();
+            builder.Property(x => x.GithubUsername).IsRequired(false);
+            builder.Property(x=>x.Specialization).IsRequired(false);
            
 
 

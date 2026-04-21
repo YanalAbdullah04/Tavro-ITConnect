@@ -88,7 +88,9 @@ builder.Services.AddScoped<IApplicantService, ApplicantServie>();
 //Trainer Services
 builder.Services.AddScoped<ITrainerService, TrainerService>();
 builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
- 
+
+//Email service
+builder.Services.AddScoped<IEmailService,EmailService>();
 
 var app = builder.Build();
 app.UseSwagger();
