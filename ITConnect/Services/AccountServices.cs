@@ -242,9 +242,9 @@ namespace ITConnect.Services
 
 
                     var baseUrl = "http://localhost:8080";
+             
 
-
-                    var pagePath = "/trainer/profile-setting";
+                    var pagePath = "/profile-setting";
 
 
                     var fullLink = $"{baseUrl}{pagePath}?token={jwt.Token}";
