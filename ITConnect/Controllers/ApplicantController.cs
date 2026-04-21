@@ -26,7 +26,7 @@ namespace ITConnect.Controllers
         public async Task<ActionResult<PagedResults<ApplicantResponse>>> getall([FromQuery] string? SearchString,
             [FromQuery] ApplicantStatus? status,
             [FromQuery] Guid? TrackId,
-            [FromQuery] int CurentPage=1,
+            [FromQuery] int CurentPage=1,   
             [FromQuery]int PageSize=5
             ) {
 

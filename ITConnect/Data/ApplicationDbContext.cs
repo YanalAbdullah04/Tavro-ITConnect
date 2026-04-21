@@ -38,8 +38,10 @@ public class ApplicationDbContext : IdentityDbContext
         builder.Entity<Track>().HasQueryFilter(t =>
         (userContext.IsCompany && t.CompanyId == userContext.CompanyId));
 
-        builder.Entity<TrainingSession>().HasQueryFilter(t =>
-        (userContext.IsCompany && t.CompanyId == userContext.CompanyId));
+        builder.Entity<TrainingSession>().HasQueryFilter(ts =>
+           (userContext.IsCompany && ts.CompanyId == userContext.CompanyId) ||
+           (userContext.IsTrainer && ts.TrainerId == userContext.TrainerId)
+       );
 
         builder.Entity<Post>().HasQueryFilter(t =>
         (userContext.IsCompany && t.CompanyId == userContext.CompanyId));
@@ -47,6 +49,14 @@ public class ApplicationDbContext : IdentityDbContext
         builder.Entity<Applicant>().HasQueryFilter(t =>
         (userContext.IsCompany && t.CompanyId == userContext.CompanyId));
 
+        builder.Entity<Trainee>().HasQueryFilter(tr =>
+         (userContext.IsCompany && tr.TrainingSession.CompanyId == userContext.CompanyId) ||
+         (userContext.IsTrainer && (tr.TrainingSession.TrainerId == userContext.TrainerId))
+     );
+        builder.Entity<Trainer>().HasQueryFilter(tr =>
+         (userContext.IsCompany && tr.CompanyId == userContext.CompanyId) ||
+         (userContext.IsTrainer && (tr.Id == userContext.TrainerId))
+     );
 
     }
 

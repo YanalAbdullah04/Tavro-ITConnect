@@ -1,6 +1,9 @@
 ﻿using ITConnect.Data.RequestsModel.AuthDTOs;
+using ITConnect.Data.RequestsModel.TrainerDto;
 using ITConnect.Data.ResponsesModel;
+using ITConnect.Services;
 using ITConnect.Services.Iservices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
@@ -13,10 +16,12 @@ namespace ITConnect.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountServices AccountServices;
+        private readonly IEmailService emailService;
 
-        public AccountController(IAccountServices accountServices)
+        public AccountController(IAccountServices accountServices,IEmailService emailService)
         {
             AccountServices = accountServices;
+            this.emailService = emailService;
         }
 
         [HttpPost("Register/Company")]
@@ -51,6 +56,42 @@ namespace ITConnect.Controllers
                 return BadRequest(result);
             }
         }
+        [Authorize(Roles = "Company")]
+        [HttpPost("Register/Trainer")]
+        public async Task<ActionResult<RegistrationAuthResponse>> Trainersignup(TrainerRegistrationRequest trainerRegistrationRequest)
+        {
+            var result = await AccountServices.RegisterTrainerAsync(trainerRegistrationRequest);
+            try
+            {
+                
+                if (!result.IsSuccess)
+                    return BadRequest(result);
+                return Created("", result);
+
+            }
+            catch (Exception ex) {
+                return BadRequest(result);
+            }
+        }
+        [Authorize(Roles = "Trainer")]
+        [HttpPost("Trainer/profile-setting")]
+        public async Task<ActionResult<RegistrationAuthResponse>> settingTrainerProfile(TrainerProfileSettingRequest trainerProfileSettingRequest)
+        {
+            bool result = false; ;
+            try
+            {
+             result = await AccountServices.SettingTrainerProfileAsync(trainerProfileSettingRequest);
+
+
+
+                return Ok();
+
+
+            }
+            catch (Exception ex) {
+                return BadRequest(result);
+            }
+        }
 
 
         [HttpPost("Login")]
@@ -60,6 +101,14 @@ namespace ITConnect.Controllers
             if (!result.IsSuccess) 
                 return BadRequest(result);
             return Ok(result);
+
+
+        }
+        [HttpPost("testingEmailSender")]
+        public async Task<ActionResult<LoginAuthResponse>> email()
+        {
+            await emailService.SendEmailAsync("company@gmail.com", "yanalabdullah402@gmail.com", "yanal abdulah", "yanalabdullh@gmail.com", "Welcome!", "click the link to register");
+            return Ok();
 
 
         }

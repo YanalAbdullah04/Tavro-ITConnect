@@ -1,13 +1,12 @@
 ﻿using ITConnect.Data;
 using ITConnect.Data.RequestsModel.AuthDTOs;
+using ITConnect.Data.RequestsModel.TrainerDto;
 using ITConnect.Data.ResponsesModel;
 using ITConnect.Models;
 using ITConnect.Models.Repositories.UnitOfWork;
 using ITConnect.Services.Iservices;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Win32;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,32 +15,32 @@ namespace ITConnect.Services
 {
     public class AccountServices : IAccountServices
     {
-        
         private readonly RoleManager<IdentityRole> RoleManager;
         private readonly UserManager<IdentityUser> UserManager;
         private readonly IConfiguration Configuration;
         private readonly ApplicationDbContext db;
         private readonly IRegisterationUnitOfWork UnitOfWork;
+        private readonly IUserContext userContext;
+        private readonly IEmailService emailService;
 
-     
         public AccountServices(RoleManager<IdentityRole> _roleManager,
             UserManager<IdentityUser> _userManager,
             IConfiguration Configuration,
             ApplicationDbContext Db,
-            IRegisterationUnitOfWork unitOfWork)
+            IRegisterationUnitOfWork unitOfWork,
+            IUserContext userContext,
+            IEmailService emailService)
         {
             RoleManager = _roleManager;
             UserManager = _userManager;
             this.Configuration = Configuration;
             db = Db;
             UnitOfWork = unitOfWork;
+            this.userContext = userContext;
+            this.emailService = emailService;
         }
         public async Task<(IdentityResult Result, IdentityUser User)> RegisterBaseEntityAsync(RegisterationRequest registerationRequest, string role)
         {
-
-
-
-
 
             var userexist = await UserManager.FindByEmailAsync(registerationRequest.Email);
             if (userexist != null)
@@ -50,7 +49,6 @@ namespace ITConnect.Services
                      {
                          Code = "doublicated user",
                          Description = $"user with the email {registerationRequest.Email} already exist "
-
                      }), null);
 
             IdentityUser newuser = new IdentityUser()
@@ -79,8 +77,6 @@ namespace ITConnect.Services
                         Description = "unable to add role"
 
                     }), null);
-
-
             return (IdentityResult.Success, newuser);
         }
 
@@ -91,12 +87,12 @@ namespace ITConnect.Services
                 try
                 {
 
-                    var (result,user) = await RegisterBaseEntityAsync(registerationRequest, "Company");
+                    var (result, user) = await RegisterBaseEntityAsync(registerationRequest, "Company");
                     if (!result.Succeeded)
                     {
                         return new RegistrationAuthResponse() { IsSuccess = false, Errors = result.Errors.Select(x => x.Description).ToList() };
                     }
-               
+
 
                     Company company = new Company()
                     {
@@ -146,15 +142,16 @@ namespace ITConnect.Services
                 try
                 {
 
-                    var (result, user) = await RegisterBaseEntityAsync(registerationRequest , "Trainee");
+                    var (result, user) = await RegisterBaseEntityAsync(registerationRequest, "Trainee");
                     if (!result.Succeeded)
                     {
                         return new RegistrationAuthResponse() { IsSuccess = false, Errors = result.Errors.Select(x => x.Description).ToList() };
                     }
-                    Trainee trainee = new Trainee() { 
-                   UserId = user.Id,
-                  Name= registerationRequest.Name,
-                    
+                    Trainee trainee = new Trainee()
+                    {
+                        UserId = user.Id,
+                        Name = registerationRequest.Name,
+
                     };
 
                     if (!await UnitOfWork.TraineeRepository.AddAsync(trainee))
@@ -172,9 +169,8 @@ namespace ITConnect.Services
                         Expiration = jwt.Expiration,
                         IsSuccess = true,
 
-
-
                     };
+
                     await UnitOfWork.CompleteAsync();
 
                     await UnitOfWork.CommitTransactionAsync();
@@ -190,6 +186,84 @@ namespace ITConnect.Services
                 }
             }
         }
+
+
+
+
+        public async Task<RegistrationAuthResponse> RegisterTrainerAsync(TrainerRegistrationRequest TrainerRegisterationRequest)
+        {
+            using (var transaction = await UnitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    RegisterationRequest registerationRequest = new RegisterationRequest()
+                    {
+                        Email = TrainerRegisterationRequest.Email,
+                        Name = TrainerRegisterationRequest.FullName,
+                        Phone = TrainerRegisterationRequest.Phone,
+                        Password = new Guid().ToString() + "123abcABC",
+                    };
+                    var (result, user) = await RegisterBaseEntityAsync(registerationRequest, "Trainer");
+                    if (!result.Succeeded)
+                    {
+                        return new RegistrationAuthResponse() { IsSuccess = false, Errors = result.Errors.Select(x => x.Description).ToList() };
+                    }
+                    Trainer Trainer = new Trainer()
+                    {
+                        Id = user.Id,
+                        Name = registerationRequest.Name,
+                        CompanyId = userContext.CompanyId,
+                        Specialization = TrainerRegisterationRequest.Specialization,
+
+
+
+                    };
+
+                    if (!await UnitOfWork.TrainerRepository.AddAsync(Trainer))
+                        return new()
+                        {
+                            IsSuccess = false,
+                            Errors = { "failed to add  profile" }
+                        };
+
+
+                    var jwt = await GenerateJWTAsync(user, "Trainer");
+                    RegistrationAuthResponse response = new RegistrationAuthResponse()
+                    {
+                        Token = jwt.Token,
+                        Expiration = jwt.Expiration,
+                        IsSuccess = true,
+
+                    };
+                    await UnitOfWork.CompleteAsync();
+
+                    await UnitOfWork.CommitTransactionAsync();
+                    var company = await UserManager.FindByIdAsync(userContext.CompanyId);
+
+
+                    var baseUrl = "http://localhost:8080";
+
+
+                    var pagePath = "/trainer/profile-setting";
+
+
+                    var fullLink = $"{baseUrl}{pagePath}?token={jwt.Token}";
+
+                    await emailService.SendEmailAsync(company.Email, "yanalabdullah402@gmail.com", Trainer.Name, user.Email, "ITConnect Invetation Link", fullLink);
+
+
+                    return response;
+
+
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
+        }
+
 
         public async Task<LoginAuthResponse> Login(LoginDto logInDto)
         {
@@ -210,7 +284,7 @@ namespace ITConnect.Services
 
                 };
             }
-            
+
             return new LoginAuthResponse() { Errors = new() { "wrong password" } };
 
 
@@ -242,6 +316,79 @@ namespace ITConnect.Services
             RegistrationAuthResponse response = new RegistrationAuthResponse() { Token = jwtoken, Expiration = token.ValidTo };
             return response;
         }
-        
+
+
+
+
+        public async Task<bool> UpdateUserIdentityAsync(string userId, string email, string phone)
+        {
+            var user = await UserManager.FindByIdAsync(userId);
+            if (user == null) throw new Exception("User not found");
+
+            user.Email = email;
+            user.PhoneNumber = phone;
+
+            var result = await UserManager.UpdateAsync(user);
+            if (result.Succeeded)
+                return true;
+            return false;
+        }
+
+        public async Task<bool> SettingTrainerProfileAsync(TrainerProfileSettingRequest trainerProfileSettingRequest)
+        {
+
+            using (var transaction =  await UnitOfWork.BeginTransactionAsync())
+            {
+               
+                var userId = userContext.RawId;
+                if (string.IsNullOrEmpty(userId)) return false;
+
+                var user = await UserManager.FindByIdAsync(userId);
+                if (user == null) return false;
+                try
+                {
+
+                    await UserManager.RemovePasswordAsync(user);
+                    var addPasswordResult = await UserManager.AddPasswordAsync(user, trainerProfileSettingRequest.Password);
+
+                    if (!addPasswordResult.Succeeded) return false;
+
+                 
+
+                    var trainer = await UnitOfWork.TrainerRepository.GetByIdAsync(userId);
+                    if (trainer == null) return false;
+
+                    trainer.Specialization = trainerProfileSettingRequest.Specialization;
+                  
+                    trainer.GithubUsername = trainerProfileSettingRequest.GitHubAccount;
+                    trainer.ImgUrl = trainerProfileSettingRequest.ImgUrl; //غيرها تنساش 
+
+                    
+                    await UnitOfWork.CompleteAsync();
+                    await UnitOfWork.CommitTransactionAsync();
+
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+
+        }
+        public async Task<bool> DeleteUserAccountAsync(string userId)
+        {
+            var user = await UserManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            var result = await UserManager.DeleteAsync(user);
+
+            return result.Succeeded;
+        }
     }
 }

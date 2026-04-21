@@ -4,8 +4,11 @@ namespace ITConnect.Models.Repositories.UnitOfWork
 {
     public interface IRegisterationUnitOfWork:IUnitOfWork
     {
-        public IGenericRepository<Company> CompanyRepository { get; set; }
-        public IGenericRepository<Trainee> TraineeRepository { get; set; }
+        
+        public IGenericRepository<Company> CompanyRepository { get; }
+
+        public IGenericRepository<Trainee> TraineeRepository { get;  }
+        public IGenericRepository<Trainer> TrainerRepository { get; }
 
     }
 }
