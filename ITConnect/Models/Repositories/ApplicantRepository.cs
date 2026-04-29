@@ -107,5 +107,30 @@ namespace ITConnect.Models.Repositories
 
 
 
+        public async Task<bool> HasAppliedAsync(string traineeId, string trainingSessionId)
+        {
+            return await Db.Applicants.IgnoreQueryFilters().AnyAsync(a => a.TraineeId == traineeId && a.TrainingSessionId == trainingSessionId);
+        }
+
+        public async Task<bool> CreateApplicationAsync(string postId, string traineeId)
+        {
+            var post = await Db.Posts.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == postId);
+            if (post == null) return false;
+
+            var hasApplied = await HasAppliedAsync(traineeId, post.TrainingSessionId);
+            if (hasApplied) return false;
+
+            var applicant = new Applicant
+            {
+                TraineeId = traineeId,
+                CompanyId = post.CompanyId,
+                TrainingSessionId = post.TrainingSessionId,
+                Status = ApplicantStatus.Pending,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await Db.Applicants.AddAsync(applicant);
+            return await Db.SaveChangesAsync() > 0;
+        }
     }
 }

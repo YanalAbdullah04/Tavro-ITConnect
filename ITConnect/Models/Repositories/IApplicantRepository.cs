@@ -1,4 +1,4 @@
-﻿using ITConnect.Data.ResponsesModel;
+using ITConnect.Data.ResponsesModel;
 
 namespace ITConnect.Models.Repository.cs;
 
@@ -17,4 +17,6 @@ public interface IApplicantRepository:IGenericRepository<Applicant>
         string trainingSessionId
     );
 
+    Task<bool> HasAppliedAsync(string traineeId, string trainingSessionId);
+    Task<bool> CreateApplicationAsync(string postId, string traineeId);
 }
