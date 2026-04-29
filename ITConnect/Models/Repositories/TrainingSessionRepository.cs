@@ -37,7 +37,8 @@ namespace ITConnect.Models.Repositories
                     TrainingStatus = x.TrainingStatus,
                     TrainingSessionName = x.Name,
                     TrainerName = Db.Trainers.Select(t => t.Name).Single(),
-                    TrackName = Db.Tracks.Where(t=>t.Id==x.TrackId).Select(t=>t.Name).Single()
+                    TrackName = Db.Tracks.Where(t=>t.Id==x.TrackId).Select(t=>t.Name).Single(),
+                    RegisteredStudentsCount=Db.Trainees.Count(s=>s.TrainingSessionId==x.Id)
                 }
             );
             return result;         

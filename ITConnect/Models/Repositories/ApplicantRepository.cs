@@ -1,4 +1,4 @@
-﻿using ITConnect.Data;
+using ITConnect.Data;
 using ITConnect.Data.ResponsesModel;
 using ITConnect.Models.Repository;
 using ITConnect.Models.Repository.cs;
@@ -37,10 +37,15 @@ namespace ITConnect.Models.Repositories
 
         private IQueryable<ApplicantResponseDetailes> GetApplicantResponseDetailesQuery(string traineeId, string trainingSessionId)
         {
+            var isCompany = Db.UserContext.IsCompany;
+            var companyId = Db.UserContext.CompanyId;
 
+            var query = Db.Applicants.IgnoreQueryFilters().Where(a => a.TraineeId == traineeId && a.TrainingSessionId == trainingSessionId);
 
-            var result = Db.Applicants.Where(a => a.TraineeId == traineeId && a.TrainingSessionId == trainingSessionId)
-            .Select(a => new ApplicantResponseDetailes()
+            if (isCompany)
+                query = query.Where(a => a.CompanyId == companyId);
+
+            var result = query.Select(a => new ApplicantResponseDetailes()
             {
 
                 Email = a.Trainee.User.Email,
@@ -64,7 +69,13 @@ namespace ITConnect.Models.Repositories
 
         private IQueryable<ApplicantResponse> GetApplicantResponseQuery(string searchstring, ApplicantStatus? status, string? trackid)
         {
-            var query = Db.Applicants.AsQueryable();
+            var isCompany = Db.UserContext.IsCompany;
+            var companyId = Db.UserContext.CompanyId;
+
+            var query = Db.Applicants.IgnoreQueryFilters().AsQueryable();
+
+            if (isCompany)
+                query = query.Where(a => a.CompanyId == companyId);
 
             if (!string.IsNullOrEmpty(searchstring))
                 query = query.Where(x => x.Trainee.Name.Contains(searchstring) ||

@@ -1,4 +1,4 @@
-﻿using ITConnect.Data.ResponsesModel;
+using ITConnect.Data.ResponsesModel;
 using ITConnect.Iservices;
 using ITConnect.Models;
 using ITConnect.Models.Repository.cs;
@@ -49,6 +49,10 @@ namespace ITConnect.Services
             if (status.Equals(ApplicantStatus.Accepted))
             {
                 var trainee = await traineeRepository.GetByIdAsync(applicant.TraineeId);
+                
+                if (trainee == null)
+                    return false;
+
                 trainee.TrainingSessionId = applicant.TrainingSessionId;
                 trainee.CompanyId=applicant.CompanyId;
               await traineeRepository.UpdateAsync(trainee.Id,trainee);

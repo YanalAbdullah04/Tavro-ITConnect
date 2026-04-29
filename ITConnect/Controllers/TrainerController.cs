@@ -42,9 +42,9 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company,Trainer")]
         [HttpPut("Management")]
-        public async Task<ActionResult<List<TrainerResponse>>> UpdateTrainerProfile(UpdateTrainerRequest updateTrainerRequest)
+        public async Task<ActionResult<List<TrainerResponse>>> UpdateTrainerProfile(SettingTrainerProfileRequest updateTrainerRequest)
         {
-            var reult = await TrainerService.UpdateTrainerProfileAsync(updateTrainerRequest);
+            var reult = await TrainerService.SettingTrainerProfileAsync(updateTrainerRequest);
             return NoContent();
 
         }

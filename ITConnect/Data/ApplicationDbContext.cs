@@ -1,17 +1,18 @@
-﻿using ITConnect.Models;
+using ITConnect.Models;
 using ITConnect.Services.Iservices;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Tls;
 
 namespace ITConnect.Data;
 
 public class ApplicationDbContext : IdentityDbContext
 {
-    private readonly IUserContext userContext;
+    public IUserContext UserContext { get; }
 
     public ApplicationDbContext(DbContextOptions options, IUserContext userContext) : base(options)
     {
-        this.userContext = userContext;
+        this.UserContext = userContext;
     }
 
     public DbSet<Company> Companies { get; set; }
@@ -32,31 +33,66 @@ public class ApplicationDbContext : IdentityDbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        Console.WriteLine(UserContext.IsCompany);
+        Console.WriteLine(UserContext.IsTrainee);
+        Console.WriteLine(UserContext.RawId);
+        Console.WriteLine(UserContext.CompanyId);
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
+        //for company 
         builder.Entity<Track>().HasQueryFilter(t =>
-        (userContext.IsCompany && t.CompanyId == userContext.CompanyId));
+        (UserContext.IsCompany && t.CompanyId == UserContext.CompanyId));
 
-        builder.Entity<TrainingSession>().HasQueryFilter(ts =>
-           (userContext.IsCompany && ts.CompanyId == userContext.CompanyId) ||
-           (userContext.IsTrainer && ts.TrainerId == userContext.TrainerId)
-       );
 
+        //company
         builder.Entity<Post>().HasQueryFilter(t =>
-        (userContext.IsCompany && t.CompanyId == userContext.CompanyId));
+        (UserContext.IsCompany && t.CompanyId == UserContext.CompanyId));
 
+
+        //company , maybe i will add the trainee if i added the tracing application feature
         builder.Entity<Applicant>().HasQueryFilter(t =>
-        (userContext.IsCompany && t.CompanyId == userContext.CompanyId));
+        (UserContext.IsCompany && t.CompanyId == UserContext.CompanyId)
 
-        builder.Entity<Trainee>().HasQueryFilter(tr =>
-         (userContext.IsCompany && tr.TrainingSession.CompanyId == userContext.CompanyId) ||
-         (userContext.IsTrainer && (tr.TrainingSession.TrainerId == userContext.TrainerId))
      );
+
+
+        //company and trainer
+        builder.Entity<TrainingSession>().HasQueryFilter(ts =>
+           (UserContext.IsCompany && ts.CompanyId == UserContext.CompanyId) ||
+           (UserContext.IsTrainer && ts.TrainerId == UserContext.TrainerId)   
+       );
+       
+    
+        // company and tyrainer 
         builder.Entity<Trainer>().HasQueryFilter(tr =>
-         (userContext.IsCompany && tr.CompanyId == userContext.CompanyId) ||
-         (userContext.IsTrainer && (tr.Id == userContext.TrainerId))
+         (UserContext.IsCompany && tr.CompanyId == UserContext.CompanyId) ||
+         (UserContext.IsTrainer && (tr.Id == UserContext.TrainerId))
      );
+
+        // all users 
+        builder.Entity<Trainee>().HasQueryFilter(tr =>
+         (UserContext.IsCompany) ||
+         (UserContext.IsTrainer && (tr.TrainingSession.TrainerId == UserContext.TrainerId)) ||
+         (UserContext.IsTrainee && (tr.Id == UserContext.TraineeId)));
+
+        // trainer trainee
+        builder.Entity<TaskAssignment>().HasQueryFilter(ta =>
+         (UserContext.IsTrainer && (ta.Trainee.TrainingSession.TrainerId == UserContext.TrainerId)) ||
+         (UserContext.IsTrainee && (ta.TraineeId == UserContext.TraineeId)));
+
+
+        //trainer trainee
+        builder.Entity<Announcement>().HasQueryFilter(an =>
+            (UserContext.IsTrainer && an.TrainingSession.TrainerId == UserContext.TrainerId) ||
+            (UserContext.IsTrainee && Trainees.Any(tr => tr.Id == UserContext.TraineeId && tr.TrainingSessionId == an.TrainingSessionId))
+        );
+      
+        //trainer and maybe for trainee 
+        builder.Entity<ApplicationTask>().HasQueryFilter(ta =>
+            (UserContext.IsTrainer &&  (ta.Trainer.Id== UserContext.TrainerId)) 
+    
+        );
 
     }
 

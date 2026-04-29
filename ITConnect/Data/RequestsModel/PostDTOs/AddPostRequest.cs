@@ -12,6 +12,7 @@ namespace ITConnect.Data.RequestsModel.PostDTOs
         public string Benefits { get; set; }
         public PostStatus? Status { get; set; }
         public string TrainingSessionId { get; set; } // unique
+     
 
 
     }

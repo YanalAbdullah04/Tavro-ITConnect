@@ -31,7 +31,7 @@ namespace ITConnect.Services
            return await TrainerRepository.GetTrainerResponseProfileAsync(TrainerId);
         }
 
-        public async Task<bool> UpdateTrainerProfileAsync(UpdateTrainerRequest updateTrainerRequest)
+        public async Task<bool> SettingTrainerProfileAsync(SettingTrainerProfileRequest updateTrainerRequest)
         {
            var trainer= await TrainerRepository.GetByIdAsync(updateTrainerRequest.TrainerId);
             if (trainer == null)

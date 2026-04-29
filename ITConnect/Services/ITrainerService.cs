@@ -9,7 +9,7 @@ namespace ITConnect.Services
     {
         public Task<PagedResults<TrainerResponse>> GetAllTrainerAsync(string searchstring, int CurentPage, int PageSize);
         public Task<TrainerProfileResponse> GetTrainerProfileResponseAsync(string TrainerId);
-        Task<bool> UpdateTrainerProfileAsync(UpdateTrainerRequest updateTrainerRequest);
+        Task<bool> SettingTrainerProfileAsync(SettingTrainerProfileRequest settingTrainerProfileRequest);
         public Task<bool> DeleteTrainerAsync(string Trainer);
         }
 

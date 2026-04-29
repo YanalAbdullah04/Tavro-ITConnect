@@ -8,10 +8,10 @@ namespace ITConnect.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<Company> builder)
         {
-            builder.HasKey(c => c.UserId);
+            builder.HasKey(c => c.Id);
             builder.HasOne(u => u.User)
                 .WithOne()
-                .HasForeignKey<Company>(x => x.UserId)
+                .HasForeignKey<Company>(x => x.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Property(x=>x.Name).IsRequired();   

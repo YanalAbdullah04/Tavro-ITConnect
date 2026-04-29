@@ -14,7 +14,7 @@ namespace ITConnect.Services
         public EmailService(IConfiguration configuration)
         {
             _smtpServer = configuration["SmtpSettings:SmtpServer"] ?? "";
-            _smtpPort = int.Parse(configuration["SmtpSettings:SmtpPort"] ?? "587");
+            _smtpPort = int.Parse(configuration["SmtpSettings:SmtpPort"] ?? "2525");
             _smtpUsername = configuration["SmtpSettings:SmtpUsername"] ?? "";
             _smtpPassword = configuration["SmtpSettings:SmtpPassword"] ?? "";
         }

@@ -92,6 +92,10 @@ builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
 //Email service
 builder.Services.AddScoped<IEmailService,EmailService>();
 
+//trainee services
+builder.Services.AddScoped<ITraineeService, TraineeService>();
+builder.Services.AddScoped<ITraineeRepository, TraineeRepository>();
+
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(); 

@@ -11,12 +11,10 @@
 
         bool IsCompany { get; }
         bool IsTrainer { get; }
-
-
+        bool IsTrainee { get; }
         string? CompanyId { get; }
-
-
         string? TrainerId { get; }
+        string? TraineeId { get; }
 
 
 

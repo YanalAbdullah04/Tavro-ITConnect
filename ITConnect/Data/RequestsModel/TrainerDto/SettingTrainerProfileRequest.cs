@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ITConnect.Data.RequestsModel.TrainerResponse
 {
-    public class UpdateTrainerRequest
+    public class SettingTrainerProfileRequest
     {
         public string TrainerId { get; set; }
 

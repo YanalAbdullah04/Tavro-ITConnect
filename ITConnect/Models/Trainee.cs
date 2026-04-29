@@ -1,4 +1,4 @@
-﻿using ITConnect.Data;
+using ITConnect.Data;
 using Microsoft.AspNetCore.Identity;
 
 namespace ITConnect.Models
@@ -6,7 +6,7 @@ namespace ITConnect.Models
 
     public class Trainee :BaseEntity
     {
-        public string UserId { get; set; }          // PK + FK → AspNetUsers.Id
+ 
         public IdentityUser User { get; set; }
 
         public string? CompanyId { get; set; }       // FK → Company.UserId

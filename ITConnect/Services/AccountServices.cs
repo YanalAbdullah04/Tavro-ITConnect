@@ -96,7 +96,7 @@ namespace ITConnect.Services
 
                     Company company = new Company()
                     {
-                        UserId = user.Id,
+                        Id = user.Id,
                         Name = registerationRequest.Name,
 
 
@@ -149,7 +149,7 @@ namespace ITConnect.Services
                     }
                     Trainee trainee = new Trainee()
                     {
-                        UserId = user.Id,
+                        Id = user.Id,
                         Name = registerationRequest.Name,
 
                     };
