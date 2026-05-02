@@ -1,4 +1,5 @@
-﻿using ITConnect.Data.ResponsesModel.TraineeResponseModels;
+using ITConnect.Data.ResponsesModel.TraineeResponseModels;
+using ITConnect.Models;
 using ITConnect.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -49,5 +50,21 @@ namespace ITConnect.Controllers
 
         }
 
+        [Authorize(Roles = "Trainee")]//not tetsted
+        [HttpGet("Dashboard")]
+        public async Task<ActionResult<TraineeOverveiwDashboardResponse>> TraineeOverVeiw()
+        {
+            var result = await traineeService.dashboardoverveiwasync();
+            return Ok(result);
+        }
+        [Authorize(Roles = "Trainee")]
+        [HttpGet("TaskAssignment/{id:guid}/Task")]//not tested
+        public async Task<ActionResult<TraineeTaskDetailesResponse>> GetTaskDetailes(Guid id)//id is taskassigement id
+        {
+            var result = await traineeService.GetTaskDetailesAsync(id.ToString(), null);
+            if (result == null)
+                return NotFound();
+            return Ok(result);
+        }
     }
 }
