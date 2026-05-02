@@ -60,7 +60,7 @@ public class ApplicationDbContext : IdentityDbContext
         //company and trainer
         builder.Entity<TrainingSession>().HasQueryFilter(ts =>
            (UserContext.IsCompany && ts.CompanyId == UserContext.CompanyId) ||
-           (UserContext.IsTrainer && ts.TrainerId == UserContext.TrainerId)   
+           (UserContext.IsTrainer && ts.TrainerId == UserContext.TrainerId)
        );
        
     
@@ -70,16 +70,17 @@ public class ApplicationDbContext : IdentityDbContext
          (UserContext.IsTrainer && (tr.Id == UserContext.TrainerId))
      );
 
-        // all users 
-        builder.Entity<Trainee>().HasQueryFilter(tr =>
-         (UserContext.IsCompany) ||
-         (UserContext.IsTrainer && (tr.TrainingSession.TrainerId == UserContext.TrainerId)) ||
-         (UserContext.IsTrainee && (tr.Id == UserContext.TraineeId)));
 
-        // trainer trainee
-        builder.Entity<TaskAssignment>().HasQueryFilter(ta =>
-         (UserContext.IsTrainer && (ta.Trainee.TrainingSession.TrainerId == UserContext.TrainerId)) ||
-         (UserContext.IsTrainee && (ta.TraineeId == UserContext.TraineeId)));
+        builder.Entity<Trainee>().HasQueryFilter(tr =>
+    (UserContext.IsCompany && tr.CompanyId == UserContext.CompanyId) ||
+    (UserContext.IsCompany && Applicants.Any(ap => ap.CompanyId == UserContext.CompanyId && ap.TraineeId == tr.Id)) ||
+    (UserContext.IsTrainer && tr.TrainingSession.TrainerId == UserContext.TrainerId) ||
+    (UserContext.IsTrainee && tr.Id == UserContext.TraineeId)
+);
+
+         //(UserContext.IsTrainee && (tr.Id == UserContext.TraineeId)));
+
+
 
 
         //trainer trainee
@@ -88,11 +89,13 @@ public class ApplicationDbContext : IdentityDbContext
             (UserContext.IsTrainee && Trainees.Any(tr => tr.Id == UserContext.TraineeId && tr.TrainingSessionId == an.TrainingSessionId))
         );
       
-        //trainer and maybe for trainee 
+        //trainer and trainee
         builder.Entity<ApplicationTask>().HasQueryFilter(ta =>
-            (UserContext.IsTrainer &&  (ta.Trainer.Id== UserContext.TrainerId)) 
-    
+            (UserContext.IsTrainer && (ta.Trainer.Id == UserContext.TrainerId))
         );
+        // trainer trainee
+        builder.Entity<TaskAssignment>().HasQueryFilter(ta =>
+         (UserContext.IsTrainer && (ta.Trainee.TrainingSession.TrainerId == UserContext.TrainerId)));
 
     }
 

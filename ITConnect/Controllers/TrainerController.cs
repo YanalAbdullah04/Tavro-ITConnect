@@ -33,7 +33,7 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<List<TrainerResponse>>> getTrainerProfile(Guid id)
+        public async Task<ActionResult<List<TrainerProfileResponse>>> getTrainerProfile(Guid id)
         {
             var reult = await TrainerService.GetTrainerProfileResponseAsync(id.ToString());
             return Ok(reult);

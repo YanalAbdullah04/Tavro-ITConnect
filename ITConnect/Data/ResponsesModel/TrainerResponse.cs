@@ -9,7 +9,7 @@ namespace ITConnect.Data.ResponsesModel
     public class TrainerResponse
     {
         
-        public string UserId { get; set; }          // PK + FK → AspNetUsers.Id
+        public string UserId { get; set; }          
         public string TrainerName { get; set; }
         public string Specialization { get; set; }
         public string phone { get; set; }

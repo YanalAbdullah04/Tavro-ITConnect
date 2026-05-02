@@ -48,5 +48,16 @@ namespace ITConnect.Services
 
             return await traineeRepository.UpdateAsync(Trainee.Id,Trainee);
         }
+
+        public async Task<TraineeOverveiwDashboardResponse> dashboardoverveiwasync()
+        {
+            return await traineeRepository.GetDashboardOverveiwAsync(userContext.TraineeId);
+        }
+        public async Task<TraineeTaskDetailesResponse?> GetTaskDetailesAsync(string taskAssignmentId, string? traineeId)
+        {
+            if (string.IsNullOrEmpty(traineeId))
+                traineeId = userContext.TraineeId;
+            return await traineeRepository.GetTaskDetailesAsync(taskAssignmentId, traineeId);
+        }
     }
 }

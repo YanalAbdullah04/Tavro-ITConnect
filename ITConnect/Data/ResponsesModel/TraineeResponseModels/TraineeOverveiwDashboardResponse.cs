@@ -1,21 +1,35 @@
-﻿using ITConnect.Models;
+using ITConnect.Models;
 
 namespace ITConnect.Data.ResponsesModel.TraineeResponseModels
 {
     public class TraineeOverveiwDashboardResponse
     {
-        List<TraineeTaskAssigenmentDto> traineeTaskAssigenmentDtos;
-        List<TraineeAnnouncementDto> traineeAnnouncementDtos;
+
+        public string TrainerName { get; set; }
+        public string TrainerGitHubAccount { get; set; }
+        public string TrainingSessionTitle { get; set; }
+        public DateTime startDate { get; set; }
+        public DateTime EndDate { get; set; }
+
+        public List<TraineeTaskAssigenmentDto> traineeTaskAssigenmentDtos { get; set; } = new();
+        public List<TraineeAnnouncementDto> traineeAnnouncementDtos { get; set; } = new();
     }
-    public class TraineeTaskAssigenmentDto {
+    public class TraineeTaskAssigenmentDto
+    {
         public string TaskAssignmentId { get; set; }
+        public string TaskTitle { get; set; }
         public string Status { get; set; }
         public DateTime AssigedAtDate { get; set; }
 
     }
-    public class TraineeAnnouncementDto {
+    public class TraineeAnnouncementDto
+    {
         public string AnnouncementId { get; set; }
         public string Title { get; set; }
     }
-
 }
+
+
+    
+
+
