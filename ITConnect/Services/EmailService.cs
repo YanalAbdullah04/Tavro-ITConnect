@@ -1,4 +1,4 @@
-﻿using MimeKit;
+using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 
@@ -14,12 +14,11 @@ namespace ITConnect.Services
         public EmailService(IConfiguration configuration)
         {
             _smtpServer = configuration["SmtpSettings:SmtpServer"] ?? "";
-            _smtpPort = int.Parse(configuration["SmtpSettings:SmtpPort"] ?? "2525");
+            _smtpPort = int.Parse(configuration["SmtpSettings:SmtpPort"] ?? "465");
             _smtpUsername = configuration["SmtpSettings:SmtpUsername"] ?? "";
             _smtpPassword = configuration["SmtpSettings:SmtpPassword"] ?? "";
         }
 
-        // Changed to async Task
         public async Task SendEmailAsync(string senderName, string senderEmail, string toName, string toEmail, string subject, string textContent)
         {
             var message = new MimeMessage();
@@ -57,24 +56,21 @@ namespace ITConnect.Services
             message.Body = builder.ToMessageBody();
             using (var client = new SmtpClient())
             {
+                client.Timeout = 30000;
                 try
                 {
-                    // Added await and Async suffix
-                    await client.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.Auto);
+                    var secureOption = _smtpPort == 465 
+                        ? SecureSocketOptions.SslOnConnect 
+                        : SecureSocketOptions.StartTls;
 
+                    await client.ConnectAsync(_smtpServer, _smtpPort, secureOption);
                     await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
-
-                    var result = await client.SendAsync(message);
-                    Console.WriteLine("Email Sender OK: \n" + result);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Email Sender Failure: \n" + ex.Message);
+                    await client.SendAsync(message);
                 }
                 finally
                 {
-                    // Disconnect is also async
-                    await client.DisconnectAsync(true);
+                    if (client.IsConnected)
+                        await client.DisconnectAsync(true);
                 }
             }
         }

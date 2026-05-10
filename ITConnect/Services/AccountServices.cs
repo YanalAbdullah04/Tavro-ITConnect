@@ -1,4 +1,4 @@
-﻿using ITConnect.Data;
+using ITConnect.Data;
 using ITConnect.Data.RequestsModel.AuthDTOs;
 using ITConnect.Data.RequestsModel.TrainerDto;
 using ITConnect.Data.ResponsesModel;
@@ -238,8 +238,10 @@ namespace ITConnect.Services
                     await UnitOfWork.CompleteAsync();
 
                     await UnitOfWork.CommitTransactionAsync();
-                    var company = await UserManager.FindByIdAsync(userContext.CompanyId);
-
+                    
+                    var companyUser = await UserManager.FindByIdAsync(userContext.CompanyId);
+                    var companyProfile = await UnitOfWork.CompanyRepository.GetByIdAsync(userContext.CompanyId);
+                    var companyName = companyProfile?.Name ?? "ITConnect System";
 
                     var baseUrl = "http://localhost:8080";
              
@@ -249,8 +251,7 @@ namespace ITConnect.Services
 
                     var fullLink = $"{baseUrl}{pagePath}?token={jwt.Token}";
 
-                    await emailService.SendEmailAsync(company.Email, "yanalabdullah402@gmail.com", Trainer.Name, user.Email, "ITConnect Invetation Link", fullLink);
-
+                    await emailService.SendEmailAsync(companyName, "yanalabdullh@gmail.com", Trainer.Name, user.Email, "ITConnect Invitation Link", fullLink);
 
                     return response;
 

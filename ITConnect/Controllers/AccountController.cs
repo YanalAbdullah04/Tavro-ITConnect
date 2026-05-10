@@ -1,4 +1,4 @@
-﻿using ITConnect.Data.RequestsModel.AuthDTOs;
+using ITConnect.Data.RequestsModel.AuthDTOs;
 using ITConnect.Data.RequestsModel.TrainerDto;
 using ITConnect.Data.ResponsesModel;
 using ITConnect.Services;
@@ -107,10 +107,16 @@ namespace ITConnect.Controllers
         [HttpPost("testingEmailSender")]
         public async Task<ActionResult<LoginAuthResponse>> email()
         {
-            await emailService.SendEmailAsync("company@gmail.com", "yanalabdullah402@gmail.com", "yanal abdulah", "yanalabdullh@gmail.com", "Welcome!", "click the link to register");
-            return Ok();
-
-
+            try
+            {
+             
+                await emailService.SendEmailAsync("ITConnect System", "company@gmail.com", "yanal abdulah", "yanalabdullah402@gmail.com", "Welcome!", "click the link to register");
+                return Ok(new { message = "Email sent successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to send email", error = ex.Message });
+            }
         }
 
     }

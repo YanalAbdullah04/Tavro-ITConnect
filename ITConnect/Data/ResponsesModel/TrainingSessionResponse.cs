@@ -16,9 +16,6 @@ namespace ITConnect.Data.ResponsesModel
         public string TrackName { get; set; }
         public string TrainerId { get; set; }
         public string TrainerName { get; set; }
-
-
-
         public int RegisteredStudentsCount { get; set; }
 
 
