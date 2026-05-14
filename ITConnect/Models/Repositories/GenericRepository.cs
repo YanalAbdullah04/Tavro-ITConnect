@@ -1,4 +1,4 @@
-﻿
+
 using ITConnect.Data;
 using ITConnect.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -31,6 +31,11 @@ namespace ITConnect.Models.Repository.cs
 
         }
 
+        public async Task<T> GetByIdIgnoreFiltersAsync(string id)
+        {
+            return await dbset.IgnoreQueryFilters().SingleOrDefaultAsync(x => x.Id == id);
+        }
+
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await dbset.ToListAsync();
@@ -47,6 +52,17 @@ namespace ITConnect.Models.Repository.cs
             if (entity == null && String.IsNullOrEmpty(id))
                 throw new NullReferenceException("failed to update , cant find the object ");
 
+            dbset.Update(entity);
+            return await Db.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateIgnoreFiltersAsync(string id, T entity)
+        {
+            if (entity == null && String.IsNullOrEmpty(id))
+                throw new NullReferenceException("failed to update , cant find the object ");
+
+            // Since we're updating, EF context handles tracking.
+            // But we ignore query filters during retrieval, and save is fine.
             dbset.Update(entity);
             return await Db.SaveChangesAsync() > 0;
         }

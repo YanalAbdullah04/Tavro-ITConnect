@@ -80,6 +80,9 @@ namespace ITConnect.Controllers
             bool result = false; ;
             try
             {
+
+
+
              result = await AccountServices.SettingTrainerProfileAsync(trainerProfileSettingRequest);
 
 

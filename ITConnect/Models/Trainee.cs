@@ -20,6 +20,8 @@ namespace ITConnect.Models
 
         public string? ResumeUrl { get; set; }
         public string? ImageUrl { get; set; }
+
+        public long? GithubInstallationId { get; set; }
     }
 
 }

@@ -1,6 +1,7 @@
 using ITConnect.Data.RequestsModel.PostDTOs;
 using ITConnect.Data.ResponsesModel.TraineeResponseModels;
 using ITConnect.Models.Repositories;
+using ITConnect.Models;
 using ITConnect.Services.Iservices;
 
 namespace ITConnect.Services
@@ -58,6 +59,20 @@ namespace ITConnect.Services
             if (string.IsNullOrEmpty(traineeId))
                 traineeId = userContext.TraineeId;
             return await traineeRepository.GetTaskDetailesAsync(taskAssignmentId, traineeId);
+        }
+
+        public async Task<bool> SubmitTaskAsync(string taskAssignmentId, string repo, string branch, string commitSha, string repoUrl)
+        {
+            var traineeId = userContext.TraineeId;
+            if (string.IsNullOrEmpty(traineeId)) return false;
+            return await traineeRepository.SubmitTaskAsync(traineeId, taskAssignmentId, repo, branch, commitSha, repoUrl);
+        }
+
+        public async Task<TaskSubmission?> GetSubmissionAsync(string taskAssignmentId)
+        {
+            var traineeId = userContext.TraineeId;
+            if (string.IsNullOrEmpty(traineeId)) return null;
+            return await traineeRepository.GetSubmissionByAssignmentIdAsync(traineeId, taskAssignmentId);
         }
     }
 }

@@ -66,5 +66,53 @@ namespace ITConnect.Controllers
                 return NotFound();
             return Ok(result);
         }
+
+        [Authorize(Roles = "Trainee")]
+        [HttpPost("SubmitTask")]
+        public async Task<IActionResult> SubmitTask([FromBody] TaskSubmissionRequest request)
+        {
+            var result = await traineeService.SubmitTaskAsync(
+                request.TaskAssignmentId,
+                request.GithubRepo,
+                request.GithubBranch,
+                request.GithubCommitSha,
+                request.GithubRepoUrl);
+
+            if (!result) return BadRequest(new { message = "Failed to submit task." });
+            return Ok(new { message = "Task submission saved." });
+        }
+
+        [Authorize(Roles = "Trainee")]
+        [HttpGet("Submission/{taskAssignmentId:guid}")]
+        public async Task<ActionResult<TaskSubmissionDto>> GetSubmission(Guid taskAssignmentId)
+        {
+            var submission = await traineeService.GetSubmissionAsync(taskAssignmentId.ToString());
+            if (submission == null) return NotFound();
+
+            return Ok(new TaskSubmissionDto
+            {
+                GithubRepo = submission.GithubRepo,
+                GithubBranch = submission.GithubBranch,
+                GithubRepoUrl = submission.GithubRepoUrl,
+                SubmittedAt = submission.SubmittedAt
+            });
+        }
+    }
+
+    public class TaskSubmissionRequest
+    {
+        public string TaskAssignmentId { get; set; }
+        public string GithubRepo { get; set; }
+        public string GithubBranch { get; set; }
+        public string GithubCommitSha { get; set; }
+        public string GithubRepoUrl { get; set; }
+    }
+
+    public class TaskSubmissionDto
+    {
+        public string GithubRepo { get; set; }
+        public string GithubBranch { get; set; }
+        public string GithubRepoUrl { get; set; }
+        public DateTime SubmittedAt { get; set; }
     }
 }
