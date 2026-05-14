@@ -109,6 +109,11 @@ builder.Services.AddScoped<IEmailService,EmailService>();
 builder.Services.AddScoped<ITraineeService, TraineeService>();
 builder.Services.AddScoped<ITraineeRepository, TraineeRepository>();
 
+// GitHub Service Integration
+builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IGitHubService, GitHubService>();
+
 var app = builder.Build();
 app.UseCors("AllowAll");
 app.UseSwagger();

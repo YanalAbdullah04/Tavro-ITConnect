@@ -41,6 +41,7 @@ namespace ITConnect.Models.Repositories
                          PortfolioLink = x.PortfolioLink,
                          ResumeUrl = x.ResumeUrl,
                          Skills = x.Skills,
+                         GithubInstallationId = x.GithubInstallationId,
                      }
                  );
             return response;
@@ -116,6 +117,59 @@ namespace ITConnect.Models.Repositories
                     Status = ta.Status,
                     trainerName = ta.ApplicationTask.Trainer.Name
                 });
+        }
+
+        public async Task<bool> SubmitTaskAsync(string traineeId, string taskAssignmentId, string repo, string branch, string commitSha, string repoUrl)
+        {
+            var assignment = await Db.TaskAssignments
+                .IgnoreQueryFilters()
+                .Include(ta => ta.ApplicationTask)
+                .SingleOrDefaultAsync(ta => ta.Id == taskAssignmentId && ta.TraineeId == traineeId);
+
+            if (assignment == null) return false;
+
+            var existing = await Db.TaskSubmissions
+                .IgnoreQueryFilters()
+                .SingleOrDefaultAsync(ts => ts.TaskAssignmentId == taskAssignmentId);
+
+            if (existing != null)
+            {
+                existing.GithubRepo = repo;
+                existing.GithubBranch = branch;
+                existing.GithubCommitSha = commitSha;
+                existing.GithubRepoUrl = repoUrl;
+                existing.SubmittedAt = DateTime.Now;
+                Db.TaskSubmissions.Update(existing);
+            }
+            else
+            {
+                var submission = new TaskSubmission
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    TaskAssignmentId = taskAssignmentId,
+                    GithubRepo = repo,
+                    GithubBranch = branch,
+                    GithubCommitSha = commitSha ?? "",
+                    GithubRepoUrl = repoUrl,
+                    SubmittedAt = DateTime.Now,
+                    SubmittedBy = traineeId,
+                    SubmittedTo = assignment.ApplicationTask.TrainerId,
+                    TrainingSessionId = assignment.ApplicationTask.TrainingSessionId
+                };
+                Db.TaskSubmissions.Add(submission);
+            }
+
+            assignment.Status = true;
+            Db.TaskAssignments.Update(assignment);
+
+            return await Db.SaveChangesAsync() > 0;
+        }
+
+        public async Task<TaskSubmission?> GetSubmissionByAssignmentIdAsync(string traineeId, string taskAssignmentId)
+        {
+            return await Db.TaskSubmissions
+                .IgnoreQueryFilters()
+                .SingleOrDefaultAsync(ts => ts.TaskAssignmentId == taskAssignmentId && ts.SubmittedBy == traineeId);
         }
     }
 }
