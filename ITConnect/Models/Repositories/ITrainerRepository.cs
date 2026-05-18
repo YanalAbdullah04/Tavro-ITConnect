@@ -1,4 +1,5 @@
-﻿using ITConnect.Data.ResponsesModel;
+using ITConnect.Data.ResponsesModel;
+using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Models.Repository.cs; // Assuming IGenericRepository is here
 
 namespace ITConnect.Models.Repositories
@@ -10,5 +11,6 @@ namespace ITConnect.Models.Repositories
 
      
         Task<TrainerProfileResponse?> GetTrainerResponseProfileAsync(string trainerid);
+        Task<TrainerDashboardOverviewResponse?> GetGetTrainerDashboardOverViewResponseAsync(string TrainerId);
     }
 }

@@ -1,5 +1,6 @@
 using ITConnect.Data.RequestsModel.PostDTOs;
 using ITConnect.Data.ResponsesModel.TraineeResponseModels;
+using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Models.Repositories;
 using ITConnect.Models;
 using ITConnect.Services.Iservices;
@@ -74,5 +75,12 @@ namespace ITConnect.Services
             if (string.IsNullOrEmpty(traineeId)) return null;
             return await traineeRepository.GetSubmissionByAssignmentIdAsync(traineeId, taskAssignmentId);
         }
+
+        public async Task<TaskAssigementsAndSubmissionsResponseModel?> GetTraineeTasksAndSubmissionsAsync(string traineeId)
+        {
+            if (string.IsNullOrEmpty(traineeId)) return null;
+            return await traineeRepository.GetTraineeTasksAndSubmissionsAsync(traineeId);
+        }
     }
 }
+

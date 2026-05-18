@@ -2,6 +2,7 @@
 using ITConnect.Data;
 using ITConnect.Data.ResponseModel;
 using ITConnect.Data.ResponsesModel.TraineeResponseModels;
+using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Models.Repository.cs;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -170,6 +171,63 @@ namespace ITConnect.Models.Repositories
             return await Db.TaskSubmissions
                 .IgnoreQueryFilters()
                 .SingleOrDefaultAsync(ts => ts.TaskAssignmentId == taskAssignmentId && ts.SubmittedBy == traineeId);
+        }
+
+        public async Task<TaskAssigementsAndSubmissionsResponseModel?> GetTraineeTasksAndSubmissionsAsync(string traineeId)
+        {
+            var traineeExists = await Db.Trainees
+                .IgnoreQueryFilters()
+                .AnyAsync(t => t.Id == traineeId);
+
+            if (!traineeExists) return null;
+
+            var tasks = await Db.TaskAssignments
+                .IgnoreQueryFilters()
+                .Where(ta => ta.TraineeId == traineeId)
+                .Select(ta => new TrainerTaskSubmissionsDto
+                {
+                    TaskAssignmentId = ta.Id,
+                    TaskTitle = ta.ApplicationTask.Title,
+                    Deadline = ta.ApplicationTask.Deadline,
+                    Feedback = ta.Feedback,
+                    Grade = ta.Grad,
+                    Status = ta.Feedback != null ? "Evaluated"
+                           : Db.TaskSubmissions.Any(ts => ts.TaskAssignmentId == ta.Id) ? "Submitted"
+                           : "Pending",
+                    SubmittedAt = Db.TaskSubmissions
+                        .Where(ts => ts.TaskAssignmentId == ta.Id && ts.SubmittedBy == traineeId)
+                        .Select(ts => (DateTime?)ts.SubmittedAt)
+                        .FirstOrDefault(),
+                    GithubRepo = Db.TaskSubmissions
+                        .Where(ts => ts.TaskAssignmentId == ta.Id && ts.SubmittedBy == traineeId)
+                        .Select(ts => ts.GithubRepo)
+                        .FirstOrDefault(),
+                    GithubBranch = Db.TaskSubmissions
+                        .Where(ts => ts.TaskAssignmentId == ta.Id && ts.SubmittedBy == traineeId)
+                        .Select(ts => ts.GithubBranch)
+                        .FirstOrDefault(),
+                    GithubRepoUrl = Db.TaskSubmissions
+                        .Where(ts => ts.TaskAssignmentId == ta.Id && ts.SubmittedBy == traineeId)
+                        .Select(ts => ts.GithubRepoUrl)
+                        .FirstOrDefault(),
+                })
+                .ToListAsync();
+
+            // Extract owner from GithubRepoUrl (e.g. "https://github.com/YanalAbdullah04/Repo" -> "YanalAbdullah04")
+            foreach (var task in tasks)
+            {
+                if (!string.IsNullOrEmpty(task.GithubRepoUrl))
+                {
+                    var segments = task.GithubRepoUrl.TrimEnd('/').Split('/');
+                    if (segments.Length >= 2)
+                        task.GithubOwner = segments[segments.Length - 2];
+                }
+            }
+
+            return new TaskAssigementsAndSubmissionsResponseModel
+            {
+                TrainerTaskSubmissionsDtos = tasks
+            };
         }
     }
 }

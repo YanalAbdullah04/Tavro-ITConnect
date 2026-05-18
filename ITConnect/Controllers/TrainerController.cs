@@ -1,5 +1,6 @@
-﻿using ITConnect.Data.RequestsModel.TrainerResponse;
+using ITConnect.Data.RequestsModel.TrainerResponse;
 using ITConnect.Data.ResponsesModel;
+using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Iservices;
 using ITConnect.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +27,7 @@ namespace ITConnect.Controllers
             )
         {
 
-            var reult = await TrainerService.GetAllTrainerAsync(SearchString,CurentPage,PageSize);
+            var reult = await TrainerService.GetAllTrainerAsync(SearchString, CurentPage, PageSize);
             return Ok(reult);
 
         }
@@ -57,8 +58,21 @@ namespace ITConnect.Controllers
             return NoContent();
 
         }
+        [Authorize(Roles = "Trainer")]
+        [HttpGet("Dashboard")]
+        public async Task<ActionResult<TrainerDashboardOverviewResponse>> GetDashboard()
+        {
+            var result = await TrainerService.GetTrainerDashboardAsync();
+            return Ok(result);
+        }
 
-
+        [Authorize(Roles = "Trainer")]
+        [HttpGet("TrainingSession/{id:guid}")]
+        public async Task<ActionResult<TrainingSessionDetailesResponse>> GetTrainingSessionDetails(Guid id)
+        {
+            var result = await TrainerService.GetTrainingSessionDetailesResponseAsync(id.ToString().ToUpper());
+            return Ok(result);
+        }
 
 
     }

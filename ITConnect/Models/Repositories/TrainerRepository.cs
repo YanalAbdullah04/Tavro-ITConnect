@@ -1,5 +1,6 @@
-﻿using ITConnect.Data;
+using ITConnect.Data;
 using ITConnect.Data.ResponsesModel;
+using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Models.Repository.cs;
 using Microsoft.EntityFrameworkCore;
 
@@ -90,6 +91,28 @@ namespace ITConnect.Models.Repositories
                     TotalStudentsCount = Db.Trainees.Count(tr => tr.TrainingSession.TrainerId == trainerId),
                     TotalTasksCount = Db.ApplicationTask.Count(at => at.TrainerId == trainerId)
                 });
+        }
+
+        public async Task<TrainerDashboardOverviewResponse?> GetGetTrainerDashboardOverViewResponseAsync(string TrainerId)
+        {
+            return await GetTrainerDashboardQuery(TrainerId).SingleOrDefaultAsync();
+        }
+
+        private IQueryable<TrainerDashboardOverviewResponse> GetTrainerDashboardQuery(string TrainerId)
+        {
+            var query = Db.Trainers.Where(x => x.Id == TrainerId).Select(t => new TrainerDashboardOverviewResponse()
+            {
+                TotalTraningCount = Db.TrainingSessions.Count(ts => ts.TrainerId == TrainerId),
+                AssigingStudentsCount = Db.Trainees.Count(tr => tr.TrainingSession.TrainerId == TrainerId),
+                PendingEvaluationsCount = Db.TaskAssignments.Count(ta => ta.Trainee.TrainingSession.TrainerId == TrainerId && ta.Status == false),
+                TrainingDto = Db.TrainingSessions.Where(x => x.TrainerId == TrainerId).Select(tr => new TrainingDtoInTrainerOverview()
+                {
+                    Id = tr.Id,
+                    Name = tr.Name,
+                    TotalStudents = Db.Trainees.Count(x => x.TrainingSessionId == tr.Id)
+                }).ToList(),
+            });
+            return query;
         }
 
 

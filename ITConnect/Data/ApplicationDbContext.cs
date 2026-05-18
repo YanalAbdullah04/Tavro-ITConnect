@@ -78,9 +78,6 @@ public class ApplicationDbContext : IdentityDbContext
     (UserContext.IsTrainee && tr.Id == UserContext.TraineeId)
 );
 
-         //(UserContext.IsTrainee && (tr.Id == UserContext.TraineeId)));
-
-
 
 
         //trainer trainee

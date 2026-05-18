@@ -1,4 +1,6 @@
+using ITConnect.Data.RequestsModel.TraineeDtos;
 using ITConnect.Data.ResponsesModel.TraineeResponseModels;
+using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Models;
 using ITConnect.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -97,22 +99,15 @@ namespace ITConnect.Controllers
                 SubmittedAt = submission.SubmittedAt
             });
         }
-    }
 
-    public class TaskSubmissionRequest
-    {
-        public string TaskAssignmentId { get; set; }
-        public string GithubRepo { get; set; }
-        public string GithubBranch { get; set; }
-        public string GithubCommitSha { get; set; }
-        public string GithubRepoUrl { get; set; }
-    }
-
-    public class TaskSubmissionDto
-    {
-        public string GithubRepo { get; set; }
-        public string GithubBranch { get; set; }
-        public string GithubRepoUrl { get; set; }
-        public DateTime SubmittedAt { get; set; }
+        [Authorize(Roles = "Trainer")]
+        [HttpGet("{id:guid}/Tasks")]
+        public async Task<ActionResult<TaskAssigementsAndSubmissionsResponseModel>> GetTraineeTasksAndSubmissions(Guid id)
+        {
+            var result = await traineeService.GetTraineeTasksAndSubmissionsAsync(id.ToString());
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
     }
 }
+

@@ -1,5 +1,6 @@
-﻿using ITConnect.Data.RequestsModel.TrainerResponse;
+using ITConnect.Data.RequestsModel.TrainerResponse;
 using ITConnect.Data.ResponsesModel;
+using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Models.Repositories;
 using ITConnect.Services.Iservices;
 
@@ -9,11 +10,19 @@ namespace ITConnect.Services
     {
         private readonly ITrainerRepository TrainerRepository;
         private readonly IAccountServices accountServices;
+        private readonly IUserContext _userContext;
 
-        public TrainerService(ITrainerRepository trainerRepository,IAccountServices accountServices)
+        private readonly ITrainingSessionRepository _trainingSessionRepository;
+
+        public TrainerService(ITrainerRepository trainerRepository, 
+            IAccountServices accountServices,
+            ITrainingSessionRepository trainingSessionRepository,
+            IUserContext userContext)
         {
             TrainerRepository = trainerRepository;
             this.accountServices = accountServices;
+            _trainingSessionRepository = trainingSessionRepository;
+            _userContext = userContext;
         }
 
 
@@ -50,6 +59,26 @@ namespace ITConnect.Services
             if (trainer == null)
                 throw new Exception("trainer not found");
             return await accountServices.DeleteUserAccountAsync(trainerid);
+        }
+
+        public async Task<TrainerDashboardOverviewResponse> GetTrainerDashboardAsync()
+        {
+            var trainerId = _userContext.TrainerId;
+            if (string.IsNullOrEmpty(trainerId))
+            {
+                throw new Exception("Trainer ID not found in context");
+            }
+            return await TrainerRepository.GetGetTrainerDashboardOverViewResponseAsync(trainerId);
+        }
+
+        public async Task<TrainingSessionDetailesResponse> GetTrainingSessionDetailesResponseAsync(string id)
+        {
+            //trainingsession is filtered using global query , no need to get useres here 
+            //if anything went wrong with this endpoitn try to use ignore qeurey and get the user id and test if it works 
+            if (string.IsNullOrEmpty(id))
+                return null;
+                
+            return await _trainingSessionRepository.GetTrainingSessionDetailesResponseAsync(id);
         }
     }
 }

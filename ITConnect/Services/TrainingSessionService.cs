@@ -1,8 +1,10 @@
-﻿using ITConnect.Data.RequestsModel.TrainingSessionDtos;
+using ITConnect.Data.RequestsModel.TrainingSessionDtos;
 using ITConnect.Data.ResponsesModel;
 using ITConnect.Models;
 using ITConnect.Models.Repositories;
 using ITConnect.Services.Iservices;
+using System.IO;
+using ITConnect.Data.RequestsModel.TrainerDto;
 
 namespace ITConnect.Services
 {
@@ -67,9 +69,45 @@ namespace ITConnect.Services
             if (!result)
                 return false;
             return await trainingSessionRepository.DeleteAsync(id, null);
-
         }
 
+        public async Task<bool> CreateAndAssignTaskAsync(string sessionId, AssignTaskRequest assignTaskRequest)
+        {
+            string? attachmentUrl = null;
+            if (assignTaskRequest.Attachment != null)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(assignTaskRequest.Attachment.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await assignTaskRequest.Attachment.CopyToAsync(stream);
+                }
+
+                attachmentUrl = "/uploads/" + fileName;
+            }
+
+            var task = new ApplicationTask
+            {
+                Id = Guid.NewGuid().ToString(),
+                Title = assignTaskRequest.TaskTitle,
+                Description = assignTaskRequest.Description,
+                Notes = assignTaskRequest.Notes ?? string.Empty,
+                Deadline = assignTaskRequest.Deadline,
+                TrainingSessionId = sessionId,
+                TrainerId = userContext.TrainerId,
+                AssignedAt = DateTime.UtcNow,
+                AttachmentUrl = attachmentUrl
+            };
+
+            return await trainingSessionRepository.CreateAndAssignTaskAsync(task, assignTaskRequest.TraineesId, assignTaskRequest.IncludeAll);
+        }
     }
 }
 
