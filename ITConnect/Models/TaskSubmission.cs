@@ -12,8 +12,6 @@
         public string GithubCommitSha { get; set; }
         public string GithubRepoUrl { get; set; }
         public DateTime SubmittedAt { get; set; } = DateTime.Now;
-
-
         public string SubmittedBy { get; set; } // trainee_id
         public Trainee Trainee { get; set; }
 

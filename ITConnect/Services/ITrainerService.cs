@@ -1,6 +1,7 @@
-﻿using ITConnect.Data.RequestsModel.TrackDTOs;
+using ITConnect.Data.RequestsModel.TrackDTOs;
 using ITConnect.Data.RequestsModel.TrainerResponse;
 using ITConnect.Data.ResponsesModel;
+using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 
 namespace ITConnect.Services
 {
@@ -11,6 +12,9 @@ namespace ITConnect.Services
         public Task<TrainerProfileResponse> GetTrainerProfileResponseAsync(string TrainerId);
         Task<bool> SettingTrainerProfileAsync(SettingTrainerProfileRequest settingTrainerProfileRequest);
         public Task<bool> DeleteTrainerAsync(string Trainer);
-        }
+        public Task<TrainerDashboardOverviewResponse> GetTrainerDashboardAsync();
+        public Task<TrainingSessionDetailesResponse> GetTrainingSessionDetailesResponseAsync(string id);
+        
+    }
 
 }

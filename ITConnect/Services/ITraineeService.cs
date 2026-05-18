@@ -1,4 +1,5 @@
 using ITConnect.Data.ResponsesModel.TraineeResponseModels;
+using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Models;
 using System.Threading.Tasks;
 
@@ -12,5 +13,6 @@ namespace ITConnect.Services
         Task<TraineeTaskDetailesResponse?> GetTaskDetailesAsync(string taskAssignmentId, string? traineeId);
         Task<bool> SubmitTaskAsync(string taskAssignmentId, string repo, string branch, string commitSha, string repoUrl);
         Task<TaskSubmission?> GetSubmissionAsync(string taskAssignmentId);
+        Task<TaskAssigementsAndSubmissionsResponseModel?> GetTraineeTasksAndSubmissionsAsync(string traineeId);
     }
 }
