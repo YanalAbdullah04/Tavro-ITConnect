@@ -307,7 +307,7 @@ namespace ITConnect.Services
             var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWT:Secret"]));
 
             var token = new JwtSecurityToken(
-            expires: DateTime.UtcNow.AddMinutes(1), // 5 - 10mins
+            expires: DateTime.UtcNow.AddHours(1), // 1 hour
             claims: authclaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );
@@ -359,8 +359,6 @@ namespace ITConnect.Services
                     var trainer = await UnitOfWork.TrainerRepository.GetByIdAsync(userId);
                     if (trainer == null) return false;
 
-                    trainer.Specialization = trainerProfileSettingRequest.Specialization;
-                  
                     trainer.GithubUsername = trainerProfileSettingRequest.GitHubAccount;
                     trainer.ImgUrl = trainerProfileSettingRequest.ImgUrl; //غيرها تنساش 
 

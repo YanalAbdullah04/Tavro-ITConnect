@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using ITConnect.Data;
 using ITConnect.Iservices;
 using ITConnect.Models;
@@ -7,6 +9,7 @@ using ITConnect.Models.Repository;
 using ITConnect.Models.Repository.cs;
 using ITConnect.Services;
 using ITConnect.Services.Iservices;
+using ITConnect.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -113,6 +116,11 @@ builder.Services.AddScoped<ITraineeRepository, TraineeRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IGitHubService, GitHubService>();
+
+//ValidationServices
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
+
 
 var app = builder.Build();
 app.UseCors("AllowAll");
