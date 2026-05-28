@@ -9,9 +9,9 @@ namespace ITConnect.Data.RequestsModel.PostDTOs
         public DateTime Deadline { get; set; }
         public string ReqSkills { get; set; }
         public string Responsibility { get; set; }
-        public string Benefits { get; set; }
+        public string? Benefits { get; set; }
         public PostStatus? Status { get; set; }
-        public string TrainingSessionId { get; set; } // unique
+        public string TrainingSessionId { get; set; } 
      
 
 
