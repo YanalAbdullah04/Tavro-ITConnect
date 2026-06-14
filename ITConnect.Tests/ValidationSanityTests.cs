@@ -5,6 +5,7 @@ using ITConnect.Data.RequestsModel.TrackDTOs;
 using ITConnect.Data.RequestsModel.TraineeDtos;
 using ITConnect.Data.RequestsModel.TrainerDto;
 using ITConnect.Data.RequestsModel.TrainerResponse;
+using ITConnect.Data.ResponsesModel.TraineeResponseModels;
 using ITConnect.Models;
 using ITConnect.Models.Repositories;
 using ITConnect.Services.Iservices;
@@ -162,6 +163,27 @@ public class ValidationSanityTests
 
         request.GithubRepo = "";
         Assert.Contains(validator.Validate(request).Errors, error => error.PropertyName == nameof(TaskSubmissionRequest.GithubRepo));
+    }
+
+    [Fact]
+    public void TraineeProfile_RequiresNameButAllowsOptionalFields()
+    {
+        var validator = new TraineeProfileRequestAndResponseValidator();
+        var profile = new TraineeProfileRequestAndResponse
+        {
+            Name = "Trainee",
+            Phone = null,
+            PortfolioLink = null,
+            Skills = null,
+            ResumeUrl = null,
+            ImageUrl = null,
+            GithubInstallationId = null
+        };
+
+        Assert.True(validator.Validate(profile).IsValid);
+
+        profile.Name = "";
+        Assert.Contains(validator.Validate(profile).Errors, error => error.PropertyName == nameof(TraineeProfileRequestAndResponse.Name));
     }
 
     [Fact]

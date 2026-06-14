@@ -47,10 +47,20 @@ namespace ITConnect.Models.Repositories
             return response;
         }
 
-        public async Task<TraineeOverveiwDashboardResponse> GetDashboardOverveiwAsync(string traineeId)
+        public async Task<bool> UpdateProfileAsync(Trainee trainee, string? phone)
+        {
+            var user = await Db.Users.SingleOrDefaultAsync(user => user.Id == trainee.Id);
+            if (user == null) return false;
+
+            user.PhoneNumber = phone;
+            Db.Trainees.Update(trainee);
+            await Db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<TraineeOverveiwDashboardResponse?> GetDashboardOverveiwAsync(string traineeId)
         {
             var trainee = await Db.Trainees
-                .IgnoreQueryFilters()
                 .Include(t => t.TrainingSession)
                     .ThenInclude(ts => ts.Trainer)
                 .FirstOrDefaultAsync(t => t.Id == traineeId);
@@ -62,8 +72,8 @@ namespace ITConnect.Models.Repositories
                 TrainerName = trainee.TrainingSession?.Trainer?.Name,
                 TrainerGitHubAccount = trainee.TrainingSession?.Trainer?.GithubUsername,
                 TrainingSessionTitle = trainee.TrainingSession?.Name,
-                startDate = trainee.TrainingSession?.StartDate ?? DateTime.MinValue,
-                EndDate = trainee.TrainingSession?.EndDate ?? DateTime.MinValue,
+                startDate = trainee.TrainingSession?.StartDate,
+                EndDate = trainee.TrainingSession?.EndDate,
                 traineeTaskAssigenmentDtos = await GetTraineeTaskAssigenmentQuery(traineeId).ToListAsync(),
                 traineeAnnouncementDtos = await GetTraineeAnnouncementQuery(trainee.TrainingSessionId).ToListAsync()
             };
@@ -83,7 +93,7 @@ namespace ITConnect.Models.Repositories
                 });
         }
 
-        public IQueryable<TraineeAnnouncementDto> GetTraineeAnnouncementQuery(string trainingSessionId)
+        public IQueryable<TraineeAnnouncementDto> GetTraineeAnnouncementQuery(string? trainingSessionId)
         {
             return Db.Announcements
                 .IgnoreQueryFilters()

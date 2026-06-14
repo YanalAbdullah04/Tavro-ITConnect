@@ -48,10 +48,10 @@ namespace ITConnect.Services
             Trainee.Skills = traineeProfileRequestAndResponse.Skills;
             
 
-            return await traineeRepository.UpdateAsync(Trainee.Id,Trainee);
+            return await traineeRepository.UpdateProfileAsync(Trainee, traineeProfileRequestAndResponse.Phone);
         }
 
-        public async Task<TraineeOverveiwDashboardResponse> dashboardoverveiwasync()
+        public async Task<TraineeOverveiwDashboardResponse?> dashboardoverveiwasync()
         {
             return await traineeRepository.GetDashboardOverveiwAsync(userContext.TraineeId);
         }

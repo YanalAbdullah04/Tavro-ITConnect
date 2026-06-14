@@ -70,7 +70,7 @@ namespace ITConnect.Controllers
             try
             {
                 Console.WriteLine($"[GitHubController] GetRepositories initiated for trainee: {traineeId}");
-                var trainee = await _traineeRepository.GetByIdIgnoreFiltersAsync(traineeId);
+                var trainee = await _traineeRepository.GetByIdAsync(traineeId);
                 if (trainee == null || !trainee.GithubInstallationId.HasValue)
                 {
                     Console.WriteLine($"[GitHubController] GetRepositories failed: trainee {traineeId} not found or no GithubInstallationId.");
@@ -94,7 +94,7 @@ namespace ITConnect.Controllers
             try
             {
                 Console.WriteLine($"[GitHubController] GetBranches initiated for trainee: {traineeId}, owner: {owner}, repo: {repoName}");
-                var trainee = await _traineeRepository.GetByIdIgnoreFiltersAsync(traineeId);
+                var trainee = await _traineeRepository.GetByIdAsync(traineeId);
                 if (trainee == null || !trainee.GithubInstallationId.HasValue)
                 {
                     Console.WriteLine($"[GitHubController] GetBranches failed: trainee {traineeId} not found or no GithubInstallationId.");
@@ -119,7 +119,7 @@ namespace ITConnect.Controllers
             try
             {
                 Console.WriteLine($"[GitHubController] GetFileContent initiated. trainee: {traineeId}, owner: {owner}, repo: {repoName}, branch: {branch}, path: '{filePath}'");
-                var trainee = await _traineeRepository.GetByIdIgnoreFiltersAsync(traineeId);
+                var trainee = await _traineeRepository.GetByIdAsync(traineeId);
                 if (trainee == null || !trainee.GithubInstallationId.HasValue)
                 {
                     Console.WriteLine($"[GitHubController] GetFileContent failed: trainee {traineeId} not found or no GithubInstallationId.");

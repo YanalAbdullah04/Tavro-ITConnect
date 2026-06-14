@@ -57,6 +57,8 @@ namespace ITConnect.Controllers
         public async Task<ActionResult<TraineeOverveiwDashboardResponse>> TraineeOverVeiw()
         {
             var result = await traineeService.dashboardoverveiwasync();
+            if (result == null)
+                return NotFound();
             return Ok(result);
         }
         [Authorize(Roles = "Trainee")]
@@ -110,4 +112,3 @@ namespace ITConnect.Controllers
         }
     }
 }
-

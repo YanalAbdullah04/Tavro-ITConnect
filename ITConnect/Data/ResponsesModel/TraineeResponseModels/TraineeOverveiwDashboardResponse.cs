@@ -5,11 +5,11 @@ namespace ITConnect.Data.ResponsesModel.TraineeResponseModels
     public class TraineeOverveiwDashboardResponse
     {
 
-        public string TrainerName { get; set; }
-        public string TrainerGitHubAccount { get; set; }
-        public string TrainingSessionTitle { get; set; }
-        public DateTime startDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public string? TrainerName { get; set; }
+        public string? TrainerGitHubAccount { get; set; }
+        public string? TrainingSessionTitle { get; set; }
+        public DateTime? startDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public List<TraineeTaskAssigenmentDto> traineeTaskAssigenmentDtos { get; set; } = new();
         public List<TraineeAnnouncementDto> traineeAnnouncementDtos { get; set; } = new();
@@ -31,5 +31,4 @@ namespace ITConnect.Data.ResponsesModel.TraineeResponseModels
 
 
     
-
 
