@@ -32,11 +32,13 @@ namespace ITConnect.Controllers
 
         }
 
-        [Authorize(Roles = "Company")]
+        [Authorize(Roles = "Company,Trainer")]
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<TrainerProfileResponse>> getTrainerProfile(Guid id)
         {
             var reult = await TrainerService.GetTrainerProfileResponseAsync(id.ToString());
+            if (reult == null)
+                return NotFound();
             return Ok(reult);
 
         }
@@ -63,6 +65,8 @@ namespace ITConnect.Controllers
         public async Task<ActionResult<TrainerDashboardOverviewResponse>> GetDashboard()
         {
             var result = await TrainerService.GetTrainerDashboardAsync();
+            if (result == null)
+                return NotFound();
             return Ok(result);
         }
 
@@ -70,7 +74,9 @@ namespace ITConnect.Controllers
         [HttpGet("TrainingSession/{id:guid}")]
         public async Task<ActionResult<TrainingSessionDetailesResponse>> GetTrainingSessionDetails(Guid id)
         {
-            var result = await TrainerService.GetTrainingSessionDetailesResponseAsync(id.ToString().ToUpper());
+            var result = await TrainerService.GetTrainingSessionDetailesResponseAsync(id.ToString());
+            if (result == null)
+                return NotFound();
             return Ok(result);
         }
 

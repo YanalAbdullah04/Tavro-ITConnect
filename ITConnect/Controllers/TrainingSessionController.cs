@@ -64,7 +64,7 @@ namespace ITConnect.Controllers
             var result = await trainingSessionService.CreateAndAssignTaskAsync(id.ToString(), assignTaskRequest);
             if (result)
                 return Created();
-            return BadRequest();
+            return BadRequest(new { message = "Could not assign the task to this training session or the selected trainees." });
         }
 
     }

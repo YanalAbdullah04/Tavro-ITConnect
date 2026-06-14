@@ -16,7 +16,7 @@ namespace ITConnect.Models.Repositories
             return PaginationExtensions.ToPagedResultAsync(query, currentpage, pagesize);
 
         }
-        public async Task<TrainerProfileResponse> GetTrainerResponseProfileAsync(string trainerid)
+        public async Task<TrainerProfileResponse?> GetTrainerResponseProfileAsync(string trainerid)
         {
             var profile= await GetProfileBaseQuery(trainerid).SingleOrDefaultAsync();
             if (profile == null)
@@ -104,7 +104,11 @@ namespace ITConnect.Models.Repositories
             {
                 TotalTraningCount = Db.TrainingSessions.Count(ts => ts.TrainerId == TrainerId),
                 AssigingStudentsCount = Db.Trainees.Count(tr => tr.TrainingSession.TrainerId == TrainerId),
-                PendingEvaluationsCount = Db.TaskAssignments.Count(ta => ta.Trainee.TrainingSession.TrainerId == TrainerId && ta.Status == false),
+                PendingEvaluationsCount = Db.TaskAssignments.Count(ta =>
+                    ta.Trainee.TrainingSession.TrainerId == TrainerId &&
+                    ta.Status &&
+                    ta.Feedback == null &&
+                    ta.Grad == null),
                 TrainingDto = Db.TrainingSessions.Where(x => x.TrainerId == TrainerId).Select(tr => new TrainingDtoInTrainerOverview()
                 {
                     Id = tr.Id,

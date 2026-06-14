@@ -32,7 +32,7 @@ namespace ITConnect.Services
             
         }
 
-        public async Task<TrainerProfileResponse> GetTrainerProfileResponseAsync(string TrainerId)
+        public async Task<TrainerProfileResponse?> GetTrainerProfileResponseAsync(string TrainerId)
         {
           bool exist= await TrainerRepository.ExistByIdAsync(TrainerId);
             if (!exist)
@@ -65,7 +65,7 @@ namespace ITConnect.Services
             return await accountServices.DeleteUserAccountAsync(trainerid);
         }
 
-        public async Task<TrainerDashboardOverviewResponse> GetTrainerDashboardAsync()
+        public async Task<TrainerDashboardOverviewResponse?> GetTrainerDashboardAsync()
         {
             var trainerId = _userContext.TrainerId;
             if (string.IsNullOrEmpty(trainerId))
@@ -75,7 +75,7 @@ namespace ITConnect.Services
             return await TrainerRepository.GetGetTrainerDashboardOverViewResponseAsync(trainerId);
         }
 
-        public async Task<TrainingSessionDetailesResponse> GetTrainingSessionDetailesResponseAsync(string id)
+        public async Task<TrainingSessionDetailesResponse?> GetTrainingSessionDetailesResponseAsync(string id)
         {
             //trainingsession is filtered using global query , no need to get useres here 
             //if anything went wrong with this endpoitn try to use ignore qeurey and get the user id and test if it works 

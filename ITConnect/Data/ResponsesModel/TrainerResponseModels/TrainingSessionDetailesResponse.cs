@@ -13,7 +13,7 @@ namespace ITConnect.Data.ResponsesModel.TrainerResponseModels
     {
         public string StudentId { get; set; }
         public string StudentName { get; set; }
-        public string Email { get; set; }
+        public string? Email { get; set; }
         public int NumberOfTasks { get; set; }//for each student
 
     }

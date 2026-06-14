@@ -31,7 +31,6 @@ namespace ITConnect.Models.Repositories
         public IQueryable<TraineeProfileRequestAndResponse> GetTraineeProfileResponseQuery(string id)
         {
             var response = Db.Trainees
-                .IgnoreQueryFilters()
                 .Where(x => x.Id.Equals(id))
                 .Select(x =>
                      new TraineeProfileRequestAndResponse()
@@ -176,13 +175,11 @@ namespace ITConnect.Models.Repositories
         public async Task<TaskAssigementsAndSubmissionsResponseModel?> GetTraineeTasksAndSubmissionsAsync(string traineeId)
         {
             var traineeExists = await Db.Trainees
-                .IgnoreQueryFilters()
                 .AnyAsync(t => t.Id == traineeId);
 
             if (!traineeExists) return null;
 
             var tasks = await Db.TaskAssignments
-                .IgnoreQueryFilters()
                 .Where(ta => ta.TraineeId == traineeId)
                 .Select(ta => new TrainerTaskSubmissionsDto
                 {
@@ -191,7 +188,7 @@ namespace ITConnect.Models.Repositories
                     Deadline = ta.ApplicationTask.Deadline,
                     Feedback = ta.Feedback,
                     Grade = ta.Grad,
-                    Status = ta.Feedback != null ? "Evaluated"
+                    Status = ta.Feedback != null || ta.Grad != null ? "Evaluated"
                            : Db.TaskSubmissions.Any(ts => ts.TaskAssignmentId == ta.Id) ? "Submitted"
                            : "Pending",
                     SubmittedAt = Db.TaskSubmissions
