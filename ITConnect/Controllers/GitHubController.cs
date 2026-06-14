@@ -1,139 +1,294 @@
+using System.Security.Cryptography;
+using System.Text.Json;
+using ITConnect.Data.ResponsesModel.GitHubResponseModels;
 using ITConnect.Models;
 using ITConnect.Models.Repository.cs;
 using ITConnect.Services.Iservices;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ITConnect.Controllers
+namespace ITConnect.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class GitHubController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class GitHubController : ControllerBase
+    public const string InstallStatePurpose = "ITConnect.GitHub.InstallState.v1";
+
+    private readonly IGitHubService _gitHubService;
+    private readonly IGenericRepository<Trainee> _traineeRepository;
+    private readonly IUserContext _userContext;
+    private readonly IConfiguration _configuration;
+    private readonly IDataProtector _stateProtector;
+
+    public GitHubController(
+        IGitHubService gitHubService,
+        IGenericRepository<Trainee> traineeRepository,
+        IUserContext userContext,
+        IConfiguration configuration,
+        IDataProtectionProvider dataProtectionProvider)
     {
-        private readonly IGitHubService _gitHubService;
-        private readonly IGenericRepository<Trainee> _traineeRepository;
+        _gitHubService = gitHubService;
+        _traineeRepository = traineeRepository;
+        _userContext = userContext;
+        _configuration = configuration;
+        _stateProtector = dataProtectionProvider.CreateProtector(InstallStatePurpose);
+    }
 
-        public GitHubController(IGitHubService gitHubService, IGenericRepository<Trainee> traineeRepository)
+    [Authorize(Roles = "Trainee")]
+    [HttpGet("install-url")]
+    public ActionResult<GitHubInstallUrlResponse> GetInstallUrl()
+    {
+        var traineeId = _userContext.TraineeId;
+        var appSlug = _configuration["GitHubConfig:AppSlug"];
+        if (string.IsNullOrWhiteSpace(traineeId))
+            return Unauthorized();
+        if (string.IsNullOrWhiteSpace(appSlug) || GetFrontendOrigin() == null)
+            return Problem("GitHub App integration configuration is incomplete.", statusCode: StatusCodes.Status503ServiceUnavailable);
+
+        var expiresAt = DateTime.UtcNow.AddMinutes(GetStateLifetimeMinutes());
+        var state = _stateProtector.Protect(JsonSerializer.Serialize(new GitHubInstallState
         {
-            _gitHubService = gitHubService;
-            _traineeRepository = traineeRepository;
+            TraineeId = traineeId,
+            ExpiresAtUnixSeconds = new DateTimeOffset(expiresAt).ToUnixTimeSeconds(),
+            Nonce = Convert.ToHexString(RandomNumberGenerator.GetBytes(24))
+        }));
+        var installUrl = $"https://github.com/apps/{Uri.EscapeDataString(appSlug)}/installations/new?state={Uri.EscapeDataString(state)}";
+
+        return Ok(new GitHubInstallUrlResponse
+        {
+            InstallUrl = installUrl,
+            StateExpiresAt = expiresAt
+        });
+    }
+
+    [AllowAnonymous]
+    [HttpGet("callback")]
+    public async Task<IActionResult> Callback(
+        [FromQuery] long installation_id,
+        [FromQuery] string? state,
+        [FromQuery] string? setup_action)
+    {
+        if (string.IsNullOrWhiteSpace(state) || installation_id <= 0)
+            return CallbackPage(false, "GitHub returned invalid callback parameters.", StatusCodes.Status400BadRequest);
+
+        GitHubInstallState? installState;
+        try
+        {
+            installState = JsonSerializer.Deserialize<GitHubInstallState>(_stateProtector.Unprotect(state));
+        }
+        catch (Exception exception) when (exception is CryptographicException or JsonException)
+        {
+            return CallbackPage(false, "The GitHub connection request is invalid or has been tampered with.", StatusCodes.Status400BadRequest);
         }
 
-        [HttpGet("callback")]
-        public async Task<IActionResult> Callback([FromQuery] long installation_id, [FromQuery] string state)
+        if (installState == null ||
+            string.IsNullOrWhiteSpace(installState.TraineeId) ||
+            string.IsNullOrWhiteSpace(installState.Nonce) ||
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds() > installState.ExpiresAtUnixSeconds)
         {
-            if (string.IsNullOrEmpty(state) || installation_id <= 0)
-            {
-                return BadRequest("Invalid callback parameters.");
-            }
+            return CallbackPage(false, "The GitHub connection request has expired.", StatusCodes.Status400BadRequest);
+        }
 
-            var traineeId = state;
-            // We use GetByIdIgnoreFiltersAsync because this callback endpoint is anonymous (unauthenticated).
-            // When GitHub redirects back to this URL, there is no JWT present. 
-            // The EF Core Global Query Filter on Trainee requires an authenticated UserContext,
-            // so we must bypass it using IgnoreQueryFilters in the repository to retrieve the trainee.
-            var trainee = await _traineeRepository.GetByIdIgnoreFiltersAsync(traineeId);
+        try
+        {
+            var installation = await _gitHubService.GetInstallationAsync(installation_id);
+            if (installation == null)
+                return CallbackPage(false, "The GitHub App installation could not be verified.", StatusCodes.Status400BadRequest);
 
+            var trainee = await _traineeRepository.GetByIdIgnoreFiltersAsync(installState.TraineeId);
             if (trainee == null)
+                return CallbackPage(false, "The intended trainee account could not be found.", StatusCodes.Status404NotFound);
+
+            trainee.GithubInstallationId = installation.InstallationId;
+            await _traineeRepository.UpdateIgnoreFiltersAsync(trainee.Id, trainee);
+
+            return CallbackPage(true, "GitHub connected successfully.", StatusCodes.Status200OK);
+        }
+        catch (HttpRequestException)
+        {
+            return CallbackPage(false, "GitHub could not verify the installation. Please try again.", StatusCodes.Status502BadGateway);
+        }
+        catch (InvalidOperationException)
+        {
+            return CallbackPage(false, "GitHub App integration configuration is incomplete.", StatusCodes.Status503ServiceUnavailable);
+        }
+    }
+
+    [Authorize(Roles = "Trainee")]
+    [HttpGet("status")]
+    public async Task<ActionResult<GitHubStatusResponse>> GetStatus()
+    {
+        var traineeId = _userContext.TraineeId;
+        if (string.IsNullOrWhiteSpace(traineeId)) return Unauthorized();
+
+        var trainee = await _traineeRepository.GetByIdAsync(traineeId);
+        if (trainee == null) return NotFound(new { message = "Trainee was not found." });
+        if (!trainee.GithubInstallationId.HasValue)
+            return Ok(new GitHubStatusResponse { IsConnected = false });
+
+        try
+        {
+            var installation = await _gitHubService.GetInstallationAsync(trainee.GithubInstallationId.Value);
+            if (installation == null)
             {
-                return NotFound("Trainee not found.");
+                trainee.GithubInstallationId = null;
+                await _traineeRepository.UpdateAsync(trainee.Id, trainee);
+                return Ok(new GitHubStatusResponse { IsConnected = false, IsStale = true });
             }
 
-            trainee.GithubInstallationId = installation_id;
-            await _traineeRepository.UpdateIgnoreFiltersAsync(traineeId, trainee);
+            return Ok(new GitHubStatusResponse
+            {
+                IsConnected = true,
+                InstallationId = installation.InstallationId,
+                AccountLogin = installation.AccountLogin,
+                AccountAvatarUrl = installation.AccountAvatarUrl,
+                AccountHtmlUrl = installation.AccountHtmlUrl,
+                RepositorySelection = installation.RepositorySelection
+            });
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway, new { message = "GitHub connection status could not be verified." });
+        }
+        catch (InvalidOperationException)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "GitHub App integration configuration is incomplete." });
+        }
+    }
 
-            var script = @"
+    [Authorize(Roles = "Trainee")]
+    [HttpDelete("disconnect")]
+    public async Task<IActionResult> Disconnect()
+    {
+        var traineeId = _userContext.TraineeId;
+        if (string.IsNullOrWhiteSpace(traineeId)) return Unauthorized();
+
+        var trainee = await _traineeRepository.GetByIdAsync(traineeId);
+        if (trainee == null) return NotFound(new { message = "Trainee was not found." });
+        if (!trainee.GithubInstallationId.HasValue) return NoContent();
+
+        trainee.GithubInstallationId = null;
+        await _traineeRepository.UpdateAsync(trainee.Id, trainee);
+        return NoContent();
+    }
+
+    [Authorize(Roles = "Trainer,Trainee")]
+    [HttpGet("repositories/{traineeId:guid}")]
+    public async Task<IActionResult> GetRepositories(string traineeId)
+    {
+        var trainee = await GetAccessibleConnectedTrainee(traineeId);
+        if (trainee.Result != null) return trainee.Result;
+
+        try
+        {
+            return Content(await _gitHubService.GetRepositoriesAsync(trainee.Value!.GithubInstallationId!.Value), "application/json");
+        }
+        catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException)
+        {
+            return GitHubAccessFailure(exception);
+        }
+    }
+
+    [Authorize(Roles = "Trainer,Trainee")]
+    [HttpGet("branches/{traineeId:guid}/{owner}/{repoName}")]
+    public async Task<IActionResult> GetBranches(string traineeId, string owner, string repoName)
+    {
+        var trainee = await GetAccessibleConnectedTrainee(traineeId);
+        if (trainee.Result != null) return trainee.Result;
+
+        try
+        {
+            return Content(await _gitHubService.GetBranchesAsync(trainee.Value!.GithubInstallationId!.Value, owner, repoName), "application/json");
+        }
+        catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException)
+        {
+            return GitHubAccessFailure(exception);
+        }
+    }
+
+    [Authorize(Roles = "Trainer,Trainee")]
+    [HttpGet("content/{traineeId:guid}/{owner}/{repoName}/{branch}")]
+    [HttpGet("content/{traineeId:guid}/{owner}/{repoName}/{branch}/{*filePath}")]
+    public async Task<IActionResult> GetFileContent(string traineeId, string owner, string repoName, string branch, string? filePath = null)
+    {
+        var trainee = await GetAccessibleConnectedTrainee(traineeId);
+        if (trainee.Result != null) return trainee.Result;
+
+        try
+        {
+            return Content(
+                await _gitHubService.GetFileContentAsync(trainee.Value!.GithubInstallationId!.Value, owner, repoName, branch, filePath),
+                "application/json");
+        }
+        catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException)
+        {
+            return GitHubAccessFailure(exception);
+        }
+    }
+
+    private async Task<ActionResult<Trainee>> GetAccessibleConnectedTrainee(string traineeId)
+    {
+        var trainee = await _traineeRepository.GetByIdAsync(traineeId);
+        if (trainee == null) return NotFound(new { message = "Trainee GitHub access was not found." });
+        if (!trainee.GithubInstallationId.HasValue)
+            return Conflict(new { message = "Trainee has not connected the GitHub App." });
+        return trainee;
+    }
+
+    private ObjectResult GitHubAccessFailure(Exception exception) =>
+        exception is InvalidOperationException
+            ? StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "GitHub App integration configuration is incomplete." })
+            : StatusCode(StatusCodes.Status502BadGateway, new { message = "GitHub could not complete the repository request." });
+
+    private IActionResult CallbackPage(bool success, string message, int statusCode)
+    {
+        var frontendOrigin = GetFrontendOrigin();
+        var payload = JsonSerializer.Serialize(new
+        {
+            type = "GITHUB_APP_INSTALLATION_RESULT",
+            success,
+            message
+        });
+        var targetOrigin = frontendOrigin == null ? "null" : JsonSerializer.Serialize(frontendOrigin);
+        var postMessageScript = frontendOrigin == null
+            ? string.Empty
+            : $"window.opener.postMessage({payload}, {targetOrigin}); window.close();";
+        var html = $$"""
+            <!doctype html>
+            <html>
+              <head><meta charset="utf-8"><title>GitHub connection</title></head>
+              <body>
+                <p>{{System.Net.WebUtility.HtmlEncode(message)}}</p>
                 <script>
-                    if (window.opener) {
-                        window.opener.postMessage({ type: 'GITHUB_APP_INSTALLED', success: true }, '*');
-                        window.close();
-                    } else {
-                        document.write('GitHub App installed successfully. You can close this tab.');
-                    }
-                </script>";
+                  if (window.opener) { {{postMessageScript}} }
+                </script>
+              </body>
+            </html>
+            """;
 
-            return Content(script, "text/html");
-        }
+        return new ContentResult { Content = html, ContentType = "text/html", StatusCode = statusCode };
+    }
 
-        [AllowAnonymous]
-        [HttpGet("test-connection")]
-        public async Task<IActionResult> TestConnection()
-        {
-            var result = await _gitHubService.TestConnectionAsync();
-            return Content(result, "text/plain");
-        }
+    private string? GetFrontendOrigin()
+    {
+        var configuredUrl = _configuration["Frontend:BaseUrl"];
+        return Uri.TryCreate(configuredUrl, UriKind.Absolute, out var uri) &&
+               (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+            ? uri.GetLeftPart(UriPartial.Authority)
+            : null;
+    }
 
-        [Authorize(Roles = "Trainer,Trainee")]
-        [HttpGet("repositories/{traineeId}")]
-        public async Task<IActionResult> GetRepositories(string traineeId)
-        {
-            try
-            {
-                Console.WriteLine($"[GitHubController] GetRepositories initiated for trainee: {traineeId}");
-                var trainee = await _traineeRepository.GetByIdAsync(traineeId);
-                if (trainee == null || !trainee.GithubInstallationId.HasValue)
-                {
-                    Console.WriteLine($"[GitHubController] GetRepositories failed: trainee {traineeId} not found or no GithubInstallationId.");
-                    return BadRequest("Trainee has not installed the GitHub App.");
-                }
+    private int GetStateLifetimeMinutes() =>
+        int.TryParse(_configuration["GitHubConfig:StateLifetimeMinutes"], out var configured) && configured is >= 1 and <= 30
+            ? configured
+            : 10;
 
-                var repositoriesJson = await _gitHubService.GetRepositoriesAsync(trainee.GithubInstallationId.Value);
-                return Content(repositoriesJson, "application/json");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[GitHubController] GetRepositories exception: {ex.Message}\n{ex.StackTrace}");
-                return BadRequest($"Error fetching repositories: {ex.Message}");
-            }
-        }
-
-        [Authorize(Roles = "Trainer,Trainee")]
-        [HttpGet("branches/{traineeId}/{owner}/{repoName}")]
-        public async Task<IActionResult> GetBranches(string traineeId, string owner, string repoName)
-        {
-            try
-            {
-                Console.WriteLine($"[GitHubController] GetBranches initiated for trainee: {traineeId}, owner: {owner}, repo: {repoName}");
-                var trainee = await _traineeRepository.GetByIdAsync(traineeId);
-                if (trainee == null || !trainee.GithubInstallationId.HasValue)
-                {
-                    Console.WriteLine($"[GitHubController] GetBranches failed: trainee {traineeId} not found or no GithubInstallationId.");
-                    return BadRequest("Trainee has not installed the GitHub App.");
-                }
-
-                var branchesJson = await _gitHubService.GetBranchesAsync(trainee.GithubInstallationId.Value, owner, repoName);
-                return Content(branchesJson, "application/json");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[GitHubController] GetBranches exception: {ex.Message}\n{ex.StackTrace}");
-                return BadRequest($"Error fetching branches: {ex.Message}");
-            }
-        }
-
-        [Authorize(Roles = "Trainer,Trainee")]
-        [HttpGet("content/{traineeId}/{owner}/{repoName}/{branch}")]
-        [HttpGet("content/{traineeId}/{owner}/{repoName}/{branch}/{*filePath}")]
-        public async Task<IActionResult> GetFileContent(string traineeId, string owner, string repoName, string branch, string filePath = null)
-        {
-            try
-            {
-                Console.WriteLine($"[GitHubController] GetFileContent initiated. trainee: {traineeId}, owner: {owner}, repo: {repoName}, branch: {branch}, path: '{filePath}'");
-                var trainee = await _traineeRepository.GetByIdAsync(traineeId);
-                if (trainee == null || !trainee.GithubInstallationId.HasValue)
-                {
-                    Console.WriteLine($"[GitHubController] GetFileContent failed: trainee {traineeId} not found or no GithubInstallationId.");
-                    return BadRequest("Trainee has not installed the GitHub App.");
-                }
-
-                var contentJson = await _gitHubService.GetFileContentAsync(trainee.GithubInstallationId.Value, owner, repoName, branch, filePath);
-                return Content(contentJson, "application/json");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[GitHubController] GetFileContent exception: {ex.Message}\n{ex.StackTrace}");
-                return BadRequest($"Error fetching file content: {ex.Message}");
-            }
-        }
+    private sealed class GitHubInstallState
+    {
+        public string TraineeId { get; set; } = string.Empty;
+        public long ExpiresAtUnixSeconds { get; set; }
+        public string Nonce { get; set; } = string.Empty;
     }
 }
