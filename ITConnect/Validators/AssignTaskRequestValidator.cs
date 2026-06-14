@@ -9,8 +9,11 @@ namespace ITConnect.Validators
         {
             RuleFor(x => x.TaskTitle).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
-            RuleFor(x => x.Notes).NotEmpty();
-            RuleFor(x => x.Deadline).NotEmpty();        
+            RuleFor(x => x.Deadline).NotEmpty();
+            RuleFor(x => x.TraineesId)
+                .NotEmpty()
+                .When(x => !x.IncludeAll)
+                .WithMessage("Select at least one trainee when IncludeAll is false.");
         }
     }
 }

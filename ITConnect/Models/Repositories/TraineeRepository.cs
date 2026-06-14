@@ -120,7 +120,7 @@ namespace ITConnect.Models.Repositories
                 });
         }
 
-        public async Task<bool> SubmitTaskAsync(string traineeId, string taskAssignmentId, string repo, string branch, string commitSha, string repoUrl)
+        public async Task<bool> SubmitTaskAsync(string traineeId, string taskAssignmentId, string repo, string branch, string? commitSha, string repoUrl)
         {
             var assignment = await Db.TaskAssignments
                 .IgnoreQueryFilters()
@@ -137,7 +137,7 @@ namespace ITConnect.Models.Repositories
             {
                 existing.GithubRepo = repo;
                 existing.GithubBranch = branch;
-                existing.GithubCommitSha = commitSha;
+                existing.GithubCommitSha = commitSha ?? "";
                 existing.GithubRepoUrl = repoUrl;
                 existing.SubmittedAt = DateTime.Now;
                 Db.TaskSubmissions.Update(existing);

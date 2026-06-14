@@ -13,7 +13,7 @@ namespace ITConnect.Data.RequestsModel.TrainerResponse
 
         public string Phone { get; set; }
 
-        public string Specialization { get; set; }
+        public string? Specialization { get; set; }
 
 
         public string? GithubUsername { get; set; }

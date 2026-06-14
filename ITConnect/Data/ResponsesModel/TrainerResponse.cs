@@ -11,7 +11,7 @@ namespace ITConnect.Data.ResponsesModel
         
         public string UserId { get; set; }          
         public string TrainerName { get; set; }
-        public string Specialization { get; set; }
+        public string? Specialization { get; set; }
         public string phone { get; set; }
         public string Email { get; set; }
 

@@ -35,7 +35,7 @@ namespace ITConnect.Models.Repositories
             if (!string.IsNullOrEmpty(searchstring))
                 query = query.Where(x => x.Name.Contains(searchstring) ||
                 x.User.Email.Contains(searchstring) ||
-                x.Specialization.Contains(searchstring)
+                (x.Specialization != null && x.Specialization.Contains(searchstring))
                 );
             var result = query.Select(t => new TrainerResponse()
             {

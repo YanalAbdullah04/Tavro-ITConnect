@@ -7,8 +7,8 @@ namespace ITConnect.Validators
     {
         public AddTrackRequestValidator()
         {
-            RuleFor(x => x.Name);
-            RuleFor(x => x.Description);
+            RuleFor(x => x.Name).NotEmpty();
+            RuleFor(x => x.Description).NotEmpty();
         }
     }
 }

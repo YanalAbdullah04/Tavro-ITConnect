@@ -10,7 +10,7 @@ namespace ITConnect.Validators
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Phone).NotEmpty().Length(10,14);
-            RuleFor(x => x.Password).Length(5,25);
+            RuleFor(x => x.Password).NotEmpty().Length(5,25);
         }
     }
 }

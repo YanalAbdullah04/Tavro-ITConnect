@@ -8,8 +8,6 @@ namespace ITConnect.Validators
         public TrainerProfileSettingRequestValidator()
         {
             RuleFor(x => x.Password).NotEmpty();
-            RuleFor(x => x.GitHubAccount).NotEmpty();
-         
         }
     }
 }

@@ -11,7 +11,7 @@ namespace ITConnect.Services
         Task<bool> UpdateTraineeProfileAsync(TraineeProfileRequestAndResponse traineeProfileRequestAndResponse);
         Task<TraineeOverveiwDashboardResponse> dashboardoverveiwasync();
         Task<TraineeTaskDetailesResponse?> GetTaskDetailesAsync(string taskAssignmentId, string? traineeId);
-        Task<bool> SubmitTaskAsync(string taskAssignmentId, string repo, string branch, string commitSha, string repoUrl);
+        Task<bool> SubmitTaskAsync(string taskAssignmentId, string repo, string branch, string? commitSha, string repoUrl);
         Task<TaskSubmission?> GetSubmissionAsync(string taskAssignmentId);
         Task<TaskAssigementsAndSubmissionsResponseModel?> GetTraineeTasksAndSubmissionsAsync(string traineeId);
     }
