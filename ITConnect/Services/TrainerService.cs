@@ -49,7 +49,11 @@ namespace ITConnect.Services
             if (!sucess)
                 throw new Exception("failed to updatet identity");
             trainer.Name = updateTrainerRequest.Name;
-            trainer.Specialization = updateTrainerRequest.Specialization; 
+            trainer.Specialization = updateTrainerRequest.Specialization;
+            if (!string.IsNullOrWhiteSpace(updateTrainerRequest.GithubUsername))
+                trainer.GithubUsername = updateTrainerRequest.GithubUsername;
+            if (!string.IsNullOrWhiteSpace(updateTrainerRequest.ImgUrl))
+                trainer.ImgUrl = updateTrainerRequest.ImgUrl;
       
             return await  TrainerRepository.UpdateAsync(trainer.Id, trainer);
         }

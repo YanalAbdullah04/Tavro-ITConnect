@@ -38,7 +38,10 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<List<ApplicantResponse>>> getApplicantById(Guid id,string traineeid,string trainingsessionid) {
+        public async Task<ActionResult<ApplicantResponseDetailes>> getApplicantById(
+            Guid id,
+            [FromQuery] string traineeid,
+            [FromQuery] string trainingsessionid) {
             var reult = await applicantService.GetApplicantResponseDetailesAsync(id.ToString(),traineeid,trainingsessionid);
             return Ok(reult);
       
@@ -46,7 +49,7 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<List<ApplicantResponse>>> UpdateStatus(Guid id, [FromQuery] ApplicantStatus status) {
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromQuery] ApplicantStatus status) {
             var reult = await applicantService.UpdateApplicantStatusAsync(id.ToString(), status);
             return NoContent();
       

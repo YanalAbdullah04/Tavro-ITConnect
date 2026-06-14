@@ -10,7 +10,6 @@ namespace ITConnect.Validators
             RuleFor(x => x.Id).NotEmpty();
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
-            RuleFor(x => x.IsPaid).NotEmpty();
             RuleFor(x => x.TrainingStatus).NotEmpty();
             RuleFor(x => x.Location).NotEmpty();
             RuleFor(x => x.StartDate).NotEmpty();

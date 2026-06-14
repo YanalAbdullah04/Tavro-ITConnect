@@ -34,7 +34,7 @@ namespace ITConnect.Services
         public async Task<ApplicantResponseDetailes> GetApplicantResponseDetailesAsync( string applicantId,string traineeId, string trainingSessionId)
         {
 
-            return await applicantRepository.GetApplicantResponseDetailesAsync(traineeId,trainingSessionId);
+            return await applicantRepository.GetApplicantResponseDetailesAsync(applicantId,traineeId,trainingSessionId);
         }
 
         public async  Task<bool> UpdateApplicantStatusAsync(string applicantId,ApplicantStatus status)

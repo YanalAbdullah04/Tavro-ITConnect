@@ -22,7 +22,7 @@ namespace ITConnect.Controllers
         }
         [Authorize(Roles = "Company")]
         [HttpGet]
-        public async Task<ActionResult<TrainingSessionResponse>> getall()
+        public async Task<ActionResult<List<TrainingSessionResponse>>> getall()
         {
             var result = await trainingSessionService.GetAllTrainingSessionResponseAsync();
             return Ok(result);

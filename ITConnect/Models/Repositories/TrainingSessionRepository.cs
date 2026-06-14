@@ -30,6 +30,7 @@ namespace ITConnect.Models.Repositories
                 {
                     Id = x.Id,
                     Description = x.Description,
+                    IsPaid = x.IsPaid,
                     EndDate = x.EndDate,
                     Location = x.Location,
                     SeatsNumber = x.SeatsNumber,
@@ -38,8 +39,8 @@ namespace ITConnect.Models.Repositories
                     TrainerId = x.TrainerId,
                     TrainingStatus = x.TrainingStatus,
                     TrainingSessionName = x.Name,
-                    TrainerName = Db.Trainers.Select(t => t.Name).Single(),
-                    TrackName = Db.Tracks.Where(t=>t.Id==x.TrackId).Select(t=>t.Name).Single(),
+                    TrainerName = x.Trainer.Name,
+                    TrackName = x.Track.Name,
                     RegisteredStudentsCount=Db.Trainees.Count(s=>s.TrainingSessionId==x.Id)
                 }
             );

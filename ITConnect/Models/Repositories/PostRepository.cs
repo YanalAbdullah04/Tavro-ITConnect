@@ -32,6 +32,8 @@ namespace ITConnect.Models.Repositories
                 Description = p.Description,
                 id = p.Id,
                 ReqSkills = p.ReqSkills,
+                Responsibility = p.Responsibility,
+                Benefits = p.Benefits,
                 Status = p.Status,
                 Title = p.Title,
                 TrainingSessionId = p.TrainingSessionId,

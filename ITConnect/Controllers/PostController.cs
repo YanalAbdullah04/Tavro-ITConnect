@@ -22,7 +22,7 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpGet]
-        public async Task<ActionResult<PostResponse>> getall()
+        public async Task<ActionResult<IEnumerable<PostResponse>>> getall()
         {
             var result = await postService.GetAllPostsAsync();
             return Ok(result);

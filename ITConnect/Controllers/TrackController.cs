@@ -25,7 +25,7 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpGet]
-        public async Task<ActionResult<TrackResponse>> getall() { 
+        public async Task<ActionResult<List<TrackResponse>>> getall() {
          var tracks =await trackService.GetAllTracksAsync();
             if (tracks != null)
                 return Ok(tracks);

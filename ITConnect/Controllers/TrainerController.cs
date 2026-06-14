@@ -34,7 +34,7 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<List<TrainerProfileResponse>>> getTrainerProfile(Guid id)
+        public async Task<ActionResult<TrainerProfileResponse>> getTrainerProfile(Guid id)
         {
             var reult = await TrainerService.GetTrainerProfileResponseAsync(id.ToString());
             return Ok(reult);
@@ -43,7 +43,7 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company,Trainer")]
         [HttpPut("Management")]
-        public async Task<ActionResult<List<TrainerResponse>>> UpdateTrainerProfile(SettingTrainerProfileRequest updateTrainerRequest)
+        public async Task<IActionResult> UpdateTrainerProfile(SettingTrainerProfileRequest updateTrainerRequest)
         {
             var reult = await TrainerService.SettingTrainerProfileAsync(updateTrainerRequest);
             return NoContent();
@@ -52,7 +52,7 @@ namespace ITConnect.Controllers
 
         [Authorize(Roles = "Company")]
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<List<TrainerResponse>>> deletetrainer(Guid id)
+        public async Task<IActionResult> deletetrainer(Guid id)
         {
             var reult = await TrainerService.DeleteTrainerAsync(id.ToString());
             return NoContent();
