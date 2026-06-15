@@ -327,6 +327,7 @@ namespace ITConnect.Services
             if (user == null) throw new Exception("User not found");
 
             user.Email = email;
+            user.UserName = email;
             user.PhoneNumber = phone;
 
             var result = await UserManager.UpdateAsync(user);

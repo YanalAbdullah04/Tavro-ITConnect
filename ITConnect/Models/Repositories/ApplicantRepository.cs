@@ -30,17 +30,20 @@ namespace ITConnect.Models.Repositories
 
 
 
-        public async Task<ApplicantResponseDetailes> GetApplicantResponseDetailesAsync(string traineeId, string trainingSessionId)
+        public async Task<ApplicantResponseDetailes> GetApplicantResponseDetailesAsync(string applicantId, string traineeId, string trainingSessionId)
         {
-            return await GetApplicantResponseDetailesQuery(traineeId, trainingSessionId).FirstOrDefaultAsync();
+            return await GetApplicantResponseDetailesQuery(applicantId, traineeId, trainingSessionId).FirstOrDefaultAsync();
         }
 
-        private IQueryable<ApplicantResponseDetailes> GetApplicantResponseDetailesQuery(string traineeId, string trainingSessionId)
+        private IQueryable<ApplicantResponseDetailes> GetApplicantResponseDetailesQuery(string applicantId, string traineeId, string trainingSessionId)
         {
             var isCompany = Db.UserContext.IsCompany;
             var companyId = Db.UserContext.CompanyId;
 
-            var query = Db.Applicants.IgnoreQueryFilters().Where(a => a.TraineeId == traineeId && a.TrainingSessionId == trainingSessionId);
+            var query = Db.Applicants.IgnoreQueryFilters().Where(a =>
+                a.Id == applicantId &&
+                a.TraineeId == traineeId &&
+                a.TrainingSessionId == trainingSessionId);
 
             if (isCompany)
                 query = query.Where(a => a.CompanyId == companyId);

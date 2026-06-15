@@ -10,7 +10,6 @@ namespace ITConnect.Validators
             RuleFor(x => x.TaskAssignmentId).NotEmpty();
             RuleFor(x => x.GithubRepo).NotEmpty();
             RuleFor(x => x.GithubBranch).NotEmpty();
-            RuleFor(x => x.GithubCommitSha).NotEmpty();
             RuleFor(x => x.GithubRepoUrl).NotEmpty();
         }
     }

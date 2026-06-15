@@ -12,7 +12,6 @@ namespace ITConnect.Validators
             RuleFor(x => x.Deadline).NotEmpty();
             RuleFor(x => x.ReqSkills).NotEmpty();
             RuleFor(x => x.Responsibility).NotEmpty();
-            RuleFor(x => x.Status).NotEmpty();
             RuleFor(x => x.TrainingSessionId).NotEmpty();
         }
     }

@@ -48,10 +48,10 @@ namespace ITConnect.Services
             Trainee.Skills = traineeProfileRequestAndResponse.Skills;
             
 
-            return await traineeRepository.UpdateAsync(Trainee.Id,Trainee);
+            return await traineeRepository.UpdateProfileAsync(Trainee, traineeProfileRequestAndResponse.Phone);
         }
 
-        public async Task<TraineeOverveiwDashboardResponse> dashboardoverveiwasync()
+        public async Task<TraineeOverveiwDashboardResponse?> dashboardoverveiwasync()
         {
             return await traineeRepository.GetDashboardOverveiwAsync(userContext.TraineeId);
         }
@@ -62,7 +62,7 @@ namespace ITConnect.Services
             return await traineeRepository.GetTaskDetailesAsync(taskAssignmentId, traineeId);
         }
 
-        public async Task<bool> SubmitTaskAsync(string taskAssignmentId, string repo, string branch, string commitSha, string repoUrl)
+        public async Task<bool> SubmitTaskAsync(string taskAssignmentId, string repo, string branch, string? commitSha, string repoUrl)
         {
             var traineeId = userContext.TraineeId;
             if (string.IsNullOrEmpty(traineeId)) return false;
@@ -83,4 +83,3 @@ namespace ITConnect.Services
         }
     }
 }
-

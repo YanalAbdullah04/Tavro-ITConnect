@@ -9,9 +9,9 @@ namespace ITConnect.Services
     {
         Task<TraineeProfileRequestAndResponse> GetTraineeProfileAsync(string? TraineeId);//for trainee and company access id is given by rout  if the user was company 
         Task<bool> UpdateTraineeProfileAsync(TraineeProfileRequestAndResponse traineeProfileRequestAndResponse);
-        Task<TraineeOverveiwDashboardResponse> dashboardoverveiwasync();
+        Task<TraineeOverveiwDashboardResponse?> dashboardoverveiwasync();
         Task<TraineeTaskDetailesResponse?> GetTaskDetailesAsync(string taskAssignmentId, string? traineeId);
-        Task<bool> SubmitTaskAsync(string taskAssignmentId, string repo, string branch, string commitSha, string repoUrl);
+        Task<bool> SubmitTaskAsync(string taskAssignmentId, string repo, string branch, string? commitSha, string repoUrl);
         Task<TaskSubmission?> GetSubmissionAsync(string taskAssignmentId);
         Task<TaskAssigementsAndSubmissionsResponseModel?> GetTraineeTasksAndSubmissionsAsync(string traineeId);
     }

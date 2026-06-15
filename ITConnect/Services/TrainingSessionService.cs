@@ -73,6 +73,9 @@ namespace ITConnect.Services
 
         public async Task<bool> CreateAndAssignTaskAsync(string sessionId, AssignTaskRequest assignTaskRequest)
         {
+            if (string.IsNullOrEmpty(userContext.TrainerId) || !await trainingSessionRepository.ExistByIdAsync(sessionId))
+                return false;
+
             string? attachmentUrl = null;
             if (assignTaskRequest.Attachment != null)
             {
@@ -110,5 +113,4 @@ namespace ITConnect.Services
         }
     }
 }
-
 

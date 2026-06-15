@@ -30,6 +30,7 @@ namespace ITConnect.Models.Repositories
                 {
                     Id = x.Id,
                     Description = x.Description,
+                    IsPaid = x.IsPaid,
                     EndDate = x.EndDate,
                     Location = x.Location,
                     SeatsNumber = x.SeatsNumber,
@@ -38,21 +39,20 @@ namespace ITConnect.Models.Repositories
                     TrainerId = x.TrainerId,
                     TrainingStatus = x.TrainingStatus,
                     TrainingSessionName = x.Name,
-                    TrainerName = Db.Trainers.Select(t => t.Name).Single(),
-                    TrackName = Db.Tracks.Where(t=>t.Id==x.TrackId).Select(t=>t.Name).Single(),
+                    TrainerName = x.Trainer.Name,
+                    TrackName = x.Track.Name,
                     RegisteredStudentsCount=Db.Trainees.Count(s=>s.TrainingSessionId==x.Id)
                 }
             );
             return result;         
         }
 
-        public async Task<TrainingSessionDetailesResponse> GetTrainingSessionDetailesResponseAsync(string sessionId)
+        public async Task<TrainingSessionDetailesResponse?> GetTrainingSessionDetailesResponseAsync(string sessionId)
         {
             // First check if it exists at all (ignoring filters) to provide a better error message
             var existsUnfiltered = await Db.TrainingSessions.IgnoreQueryFilters().AnyAsync(ts => ts.Id == sessionId || ts.Id == sessionId.ToLower() || ts.Id == sessionId.ToUpper());
-            
+
             var session = await Db.TrainingSessions.FirstOrDefaultAsync(ts => ts.Id == sessionId || ts.Id == sessionId.ToLower() || ts.Id == sessionId.ToUpper());
-            
             if (session == null)
             {
                 if (existsUnfiltered)
@@ -62,11 +62,11 @@ namespace ITConnect.Models.Repositories
                 return null;
             }
 
-            var taskCount = await Db.ApplicationTask.CountAsync(t => t.TrainingSessionId == sessionId);
+            var taskCount = await Db.ApplicationTask.CountAsync(t => t.TrainingSessionId == session.Id);
 
             var traineesQuery = Db.Trainees
                 .IgnoreQueryFilters()
-                .Where(t => t.TrainingSessionId == sessionId);
+                .Where(t => t.TrainingSessionId == session.Id);
 
             var numberOfStudents = await traineesQuery.CountAsync();
 
@@ -75,7 +75,7 @@ namespace ITConnect.Models.Repositories
                 StudentId = t.Id,
                 StudentName = t.Name,
                 Email = t.User.Email,
-                NumberOfTasks = Db.TaskAssignments.Count(ta => ta.TraineeId == t.Id && ta.ApplicationTask.TrainingSessionId == sessionId)
+                NumberOfTasks = Db.TaskAssignments.Count(ta => ta.TraineeId == t.Id && ta.ApplicationTask.TrainingSessionId == session.Id)
             }).ToListAsync();
 
             return new TrainingSessionDetailesResponse
@@ -91,55 +91,43 @@ namespace ITConnect.Models.Repositories
 
         public async Task<bool> CreateAndAssignTaskAsync(ApplicationTask task, List<string>? traineeIds, bool includeAll)
         {
-            var sessionExists = await Db.TrainingSessions.IgnoreQueryFilters().AnyAsync(ts => ts.Id == task.TrainingSessionId);
-            if (!sessionExists)
-            {
+            var session = await Db.TrainingSessions.IgnoreQueryFilters().SingleOrDefaultAsync(ts => ts.Id == task.TrainingSessionId);
+            if (session == null)
                 return false;
-            }
 
-            Db.ApplicationTask.Add(task);
+            task.TrainingSessionId = session.Id;
+            List<Trainee> trainees;
 
             if (includeAll)
             {
-                var trainees = await Db.Trainees
+                trainees = await Db.Trainees
                     .IgnoreQueryFilters()
                     .Where(t => t.TrainingSessionId == task.TrainingSessionId)
                     .ToListAsync();
-
-                foreach (var trainee in trainees)
-                {
-                    var assignment = new TaskAssignment
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        ApplicationTaskId = task.Id,
-                        TraineeId = trainee.Id,
-                        Status = false,
-                        AssignedAt = DateTime.UtcNow
-                    };
-                    Db.TaskAssignments.Add(assignment);
-                }
             }
-            else if (traineeIds != null && traineeIds.Any())
+            else
             {
-                foreach (var traineeId in traineeIds)
-                {
-                    var traineeExists = await Db.Trainees
-                        .IgnoreQueryFilters()
-                        .AnyAsync(t => t.Id == traineeId && t.TrainingSessionId == task.TrainingSessionId);
+                var requestedIds = traineeIds?.Distinct().ToList() ?? [];
+                trainees = await Db.Trainees
+                    .IgnoreQueryFilters()
+                    .Where(t => t.TrainingSessionId == task.TrainingSessionId && requestedIds.Contains(t.Id))
+                    .ToListAsync();
 
-                    if (traineeExists)
-                    {
-                        var assignment = new TaskAssignment
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            ApplicationTaskId = task.Id,
-                            TraineeId = traineeId,
-                            Status = false,
-                            AssignedAt = DateTime.UtcNow
-                        };
-                        Db.TaskAssignments.Add(assignment);
-                    }
-                }
+                if (requestedIds.Count == 0 || trainees.Count != requestedIds.Count)
+                    return false;
+            }
+
+            Db.ApplicationTask.Add(task);
+            foreach (var trainee in trainees)
+            {
+                Db.TaskAssignments.Add(new TaskAssignment
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ApplicationTaskId = task.Id,
+                    TraineeId = trainee.Id,
+                    Status = false,
+                    AssignedAt = DateTime.UtcNow
+                });
             }
 
             return await Db.SaveChangesAsync() > 0;

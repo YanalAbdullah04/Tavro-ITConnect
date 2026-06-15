@@ -7,6 +7,7 @@ namespace ITConnect.Data.ResponsesModel
         public string Id { get; set; }
         public string TrainingSessionName { get; set; }
         public string Description { get; set; }
+        public bool IsPaid { get; set; }
         public string Location { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -21,5 +22,4 @@ namespace ITConnect.Data.ResponsesModel
 
     }
 }
-
 

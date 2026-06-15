@@ -13,6 +13,7 @@ public interface IApplicantRepository:IGenericRepository<Applicant>
     );
 
     Task<ApplicantResponseDetailes> GetApplicantResponseDetailesAsync(
+        string applicantId,
         string traineeId,
         string trainingSessionId
     );

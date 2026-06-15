@@ -32,7 +32,7 @@ namespace ITConnect.Services
             
         }
 
-        public async Task<TrainerProfileResponse> GetTrainerProfileResponseAsync(string TrainerId)
+        public async Task<TrainerProfileResponse?> GetTrainerProfileResponseAsync(string TrainerId)
         {
           bool exist= await TrainerRepository.ExistByIdAsync(TrainerId);
             if (!exist)
@@ -49,7 +49,11 @@ namespace ITConnect.Services
             if (!sucess)
                 throw new Exception("failed to updatet identity");
             trainer.Name = updateTrainerRequest.Name;
-            trainer.Specialization = updateTrainerRequest.Specialization; 
+            trainer.Specialization = updateTrainerRequest.Specialization;
+            if (!string.IsNullOrWhiteSpace(updateTrainerRequest.GithubUsername))
+                trainer.GithubUsername = updateTrainerRequest.GithubUsername;
+            if (!string.IsNullOrWhiteSpace(updateTrainerRequest.ImgUrl))
+                trainer.ImgUrl = updateTrainerRequest.ImgUrl;
       
             return await  TrainerRepository.UpdateAsync(trainer.Id, trainer);
         }
@@ -61,7 +65,7 @@ namespace ITConnect.Services
             return await accountServices.DeleteUserAccountAsync(trainerid);
         }
 
-        public async Task<TrainerDashboardOverviewResponse> GetTrainerDashboardAsync()
+        public async Task<TrainerDashboardOverviewResponse?> GetTrainerDashboardAsync()
         {
             var trainerId = _userContext.TrainerId;
             if (string.IsNullOrEmpty(trainerId))
@@ -71,7 +75,7 @@ namespace ITConnect.Services
             return await TrainerRepository.GetGetTrainerDashboardOverViewResponseAsync(trainerId);
         }
 
-        public async Task<TrainingSessionDetailesResponse> GetTrainingSessionDetailesResponseAsync(string id)
+        public async Task<TrainingSessionDetailesResponse?> GetTrainingSessionDetailesResponseAsync(string id)
         {
             //trainingsession is filtered using global query , no need to get useres here 
             //if anything went wrong with this endpoitn try to use ignore qeurey and get the user id and test if it works 

@@ -10,7 +10,6 @@ namespace ITConnect.Validators
             RuleFor(x => x.FullName).NotEmpty();
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Phone).NotEmpty();
-            RuleFor(x => x.Specialization).NotEmpty();
         }
     }
 }
