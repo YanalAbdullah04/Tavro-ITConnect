@@ -41,7 +41,7 @@ namespace ITConnect.Controllers
         [Authorize(Roles = "Company")]
         [HttpPut]
         public async Task<IActionResult> updateTrainingSession(UpdateTrainingSessionRequest updateTrainingSessionRequest) {
-
+            
             var result = await trainingSessionService.UpdateTrainingSessionAsync(updateTrainingSessionRequest);
             if (result)
                 return Ok();
