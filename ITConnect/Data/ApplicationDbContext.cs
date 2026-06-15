@@ -13,6 +13,35 @@ public class ApplicationDbContext : IdentityDbContext
     public ApplicationDbContext(DbContextOptions options, IUserContext userContext) : base(options)
     {
         this.UserContext = userContext;
+        ChangeTracker.Tracked += OnEntityTracked;
+    }
+
+    private void OnEntityTracked(object sender, Microsoft.EntityFrameworkCore.ChangeTracking.EntityTrackedEventArgs e)
+    {
+        if (e.FromQuery && e.Entry.Entity is TrainingSession session)
+        {
+            var now = System.DateTime.Now;
+            if (now >= session.EndDate)
+            {
+                session.TrainingStatus = TrainingStatus.Complete;
+            }
+            else if (now >= session.StartDate)
+            {
+                session.TrainingStatus = TrainingStatus.InComplete;
+            }
+            else
+            {
+                session.TrainingStatus = TrainingStatus.Pending;
+            }
+        }
+        else if (e.FromQuery && e.Entry.Entity is Post post)
+        {
+            var now = System.DateTime.Now;
+            if (now >= post.Deadline)
+            {
+                post.Status = PostStatus.Unpublished;
+            }
+        }
     }
 
     public DbSet<Company> Companies { get; set; }

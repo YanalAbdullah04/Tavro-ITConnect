@@ -1,4 +1,4 @@
-﻿namespace ITConnect.Models
+namespace ITConnect.Models
 {
     using System;
     using System.Text.Json;
@@ -15,6 +15,11 @@
         public static PostStatus Unpublished => new PostStatus("Unpublished");
 
         public override string ToString() => Value;
+
+        public static bool operator ==(PostStatus left, PostStatus right) => left.Value == right.Value;
+        public static bool operator !=(PostStatus left, PostStatus right) => left.Value != right.Value;
+        public override bool Equals(object obj) => obj is PostStatus other && Value == other.Value;
+        public override int GetHashCode() => Value?.GetHashCode() ?? 0;
 
         public static PostStatus FromString(string value) => value?.ToLower() switch
         {

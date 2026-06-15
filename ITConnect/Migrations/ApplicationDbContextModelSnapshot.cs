@@ -48,7 +48,7 @@ namespace ITConnect.Migrations
 
                     b.HasIndex("TrainingSessionId");
 
-                    b.ToTable("Announcements");
+                    b.ToTable("Announcements", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.Applicant", b =>
@@ -86,7 +86,7 @@ namespace ITConnect.Migrations
                     b.HasIndex("TraineeId", "TrainingSessionId")
                         .IsUnique();
 
-                    b.ToTable("Applicants");
+                    b.ToTable("Applicants", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.ApplicationTask", b =>
@@ -131,7 +131,7 @@ namespace ITConnect.Migrations
 
                     b.HasIndex("TrainingSessionId");
 
-                    b.ToTable("ApplicationTask");
+                    b.ToTable("ApplicationTask", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.Company", b =>
@@ -157,7 +157,7 @@ namespace ITConnect.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.GithubAccount", b =>
@@ -197,7 +197,7 @@ namespace ITConnect.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("GithubAccounts");
+                    b.ToTable("GithubAccounts", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.Post", b =>
@@ -248,7 +248,7 @@ namespace ITConnect.Migrations
 
                     b.HasIndex("TrainingSessionId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.TaskAssignment", b =>
@@ -285,7 +285,7 @@ namespace ITConnect.Migrations
                     b.HasIndex("TraineeId", "ApplicationTaskId")
                         .IsUnique();
 
-                    b.ToTable("TaskAssignments");
+                    b.ToTable("TaskAssignments", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.TaskSubmission", b =>
@@ -340,7 +340,7 @@ namespace ITConnect.Migrations
 
                     b.HasIndex("TrainingSessionId");
 
-                    b.ToTable("TaskSubmissions");
+                    b.ToTable("TaskSubmissions", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.Track", b =>
@@ -366,7 +366,7 @@ namespace ITConnect.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Tracks");
+                    b.ToTable("Tracks", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.Trainee", b =>
@@ -405,7 +405,7 @@ namespace ITConnect.Migrations
 
                     b.HasIndex("TrainingSessionId");
 
-                    b.ToTable("Trainees");
+                    b.ToTable("Trainees", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.Trainer", b =>
@@ -434,7 +434,7 @@ namespace ITConnect.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Trainers");
+                    b.ToTable("Trainers", (string)null);
                 });
 
             modelBuilder.Entity("ITConnect.Models.TrainingSession", b =>
@@ -492,7 +492,7 @@ namespace ITConnect.Migrations
 
                     b.HasIndex("TrainerId");
 
-                    b.ToTable("TrainingSessions");
+                    b.ToTable("TrainingSessions", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

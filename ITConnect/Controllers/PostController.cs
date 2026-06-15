@@ -1,4 +1,4 @@
-﻿using ITConnect.Data.RequestsModel.PostDTOs;
+using ITConnect.Data.RequestsModel.PostDTOs;
 using ITConnect.Data.ResponsesModel;
 using ITConnect.Models;
 using ITConnect.Services.Iservices;
@@ -55,7 +55,7 @@ namespace ITConnect.Controllers
         {
             var result = await postService.UpdatePostAsync(updatePost);
             if (result)
-                return Created();
+                return NoContent();
             return BadRequest();
         }
     }

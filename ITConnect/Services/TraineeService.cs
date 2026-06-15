@@ -4,6 +4,7 @@ using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Models.Repositories;
 using ITConnect.Models;
 using ITConnect.Services.Iservices;
+using System.IO;
 
 namespace ITConnect.Services
 {
@@ -35,18 +36,38 @@ namespace ITConnect.Services
         }
 
         public async Task<bool> UpdateTraineeProfileAsync(TraineeProfileRequestAndResponse traineeProfileRequestAndResponse)
-
         {
             var Trainee = await traineeRepository.GetByIdAsync(userContext.TraineeId);
             if (Trainee == null)
                 return false;
 
-            Trainee.PortfolioLink=traineeProfileRequestAndResponse.PortfolioLink;
-            Trainee.ResumeUrl = traineeProfileRequestAndResponse.ResumeUrl;
-            Trainee.Name=traineeProfileRequestAndResponse.Name;
-            Trainee.ImageUrl=traineeProfileRequestAndResponse.ImageUrl;
+            Trainee.PortfolioLink = traineeProfileRequestAndResponse.PortfolioLink;
+            Trainee.Name = traineeProfileRequestAndResponse.Name;
+            Trainee.ImageUrl = traineeProfileRequestAndResponse.ImageUrl;
             Trainee.Skills = traineeProfileRequestAndResponse.Skills;
-            
+
+            if (traineeProfileRequestAndResponse.ResumeFile != null)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(traineeProfileRequestAndResponse.ResumeFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await traineeProfileRequestAndResponse.ResumeFile.CopyToAsync(stream);
+                }
+
+                Trainee.ResumeUrl = "/uploads/" + fileName;
+            }
+            else
+            {
+                Trainee.ResumeUrl = traineeProfileRequestAndResponse.ResumeUrl;
+            }
 
             return await traineeRepository.UpdateProfileAsync(Trainee, traineeProfileRequestAndResponse.Phone);
         }

@@ -125,6 +125,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
 
 var app = builder.Build();
 app.UseCors("AllowAll");
+app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI(); 
 

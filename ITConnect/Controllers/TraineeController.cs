@@ -42,7 +42,7 @@ namespace ITConnect.Controllers
         }
         [Authorize(Roles ="Trainee")]
         [HttpPut("Profile")]
-        public async Task<ActionResult<TraineeProfileRequestAndResponse>> UpdateTraineeProfile(TraineeProfileRequestAndResponse traineeProfileRequestAndResponse)//for company  and Trainer acess
+        public async Task<ActionResult<TraineeProfileRequestAndResponse>> UpdateTraineeProfile([FromForm] TraineeProfileRequestAndResponse traineeProfileRequestAndResponse)//for company  and Trainer acess
         {
 
             var result = await traineeService.UpdateTraineeProfileAsync(traineeProfileRequestAndResponse);
