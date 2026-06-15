@@ -49,13 +49,23 @@ namespace ITConnect.Models.Repositories
 
         public async Task<TrainingSessionDetailesResponse?> GetTrainingSessionDetailesResponseAsync(string sessionId)
         {
-            var session = await Db.TrainingSessions.FirstOrDefaultAsync(ts => ts.Id == sessionId);
+            // First check if it exists at all (ignoring filters) to provide a better error message
+            var existsUnfiltered = await Db.TrainingSessions.IgnoreQueryFilters().AnyAsync(ts => ts.Id == sessionId || ts.Id == sessionId.ToLower() || ts.Id == sessionId.ToUpper());
+
+            var session = await Db.TrainingSessions.FirstOrDefaultAsync(ts => ts.Id == sessionId || ts.Id == sessionId.ToLower() || ts.Id == sessionId.ToUpper());
             if (session == null)
+            {
+                if (existsUnfiltered)
+                {
+                    throw new UnauthorizedAccessException("The training session exists, but your current UserContext.TrainerId does not have permission to access it due to the Global Query Filter.");
+                }
                 return null;
+            }
 
             var taskCount = await Db.ApplicationTask.CountAsync(t => t.TrainingSessionId == session.Id);
 
             var traineesQuery = Db.Trainees
+                .IgnoreQueryFilters()
                 .Where(t => t.TrainingSessionId == session.Id);
 
             var numberOfStudents = await traineesQuery.CountAsync();
@@ -81,7 +91,7 @@ namespace ITConnect.Models.Repositories
 
         public async Task<bool> CreateAndAssignTaskAsync(ApplicationTask task, List<string>? traineeIds, bool includeAll)
         {
-            var session = await Db.TrainingSessions.SingleOrDefaultAsync(ts => ts.Id == task.TrainingSessionId);
+            var session = await Db.TrainingSessions.IgnoreQueryFilters().SingleOrDefaultAsync(ts => ts.Id == task.TrainingSessionId);
             if (session == null)
                 return false;
 
@@ -91,6 +101,7 @@ namespace ITConnect.Models.Repositories
             if (includeAll)
             {
                 trainees = await Db.Trainees
+                    .IgnoreQueryFilters()
                     .Where(t => t.TrainingSessionId == task.TrainingSessionId)
                     .ToListAsync();
             }
@@ -98,6 +109,7 @@ namespace ITConnect.Models.Repositories
             {
                 var requestedIds = traineeIds?.Distinct().ToList() ?? [];
                 trainees = await Db.Trainees
+                    .IgnoreQueryFilters()
                     .Where(t => t.TrainingSessionId == task.TrainingSessionId && requestedIds.Contains(t.Id))
                     .ToListAsync();
 

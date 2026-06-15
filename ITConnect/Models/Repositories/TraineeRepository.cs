@@ -31,6 +31,7 @@ namespace ITConnect.Models.Repositories
         public IQueryable<TraineeProfileRequestAndResponse> GetTraineeProfileResponseQuery(string id)
         {
             var response = Db.Trainees
+                .IgnoreQueryFilters()
                 .Where(x => x.Id.Equals(id))
                 .Select(x =>
                      new TraineeProfileRequestAndResponse()
@@ -61,6 +62,7 @@ namespace ITConnect.Models.Repositories
         public async Task<TraineeOverveiwDashboardResponse?> GetDashboardOverveiwAsync(string traineeId)
         {
             var trainee = await Db.Trainees
+                .IgnoreQueryFilters()
                 .Include(t => t.TrainingSession)
                     .ThenInclude(ts => ts.Trainer)
                 .FirstOrDefaultAsync(t => t.Id == traineeId);
@@ -185,11 +187,13 @@ namespace ITConnect.Models.Repositories
         public async Task<TaskAssigementsAndSubmissionsResponseModel?> GetTraineeTasksAndSubmissionsAsync(string traineeId)
         {
             var traineeExists = await Db.Trainees
+                .IgnoreQueryFilters()
                 .AnyAsync(t => t.Id == traineeId);
 
             if (!traineeExists) return null;
 
             var tasks = await Db.TaskAssignments
+                .IgnoreQueryFilters()
                 .Where(ta => ta.TraineeId == traineeId)
                 .Select(ta => new TrainerTaskSubmissionsDto
                 {
