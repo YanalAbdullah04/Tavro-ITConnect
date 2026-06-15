@@ -34,7 +34,7 @@ namespace ITConnect.Models.Repositories
                 ReqSkills = p.ReqSkills,
                 Responsibility = p.Responsibility,
                 Benefits = p.Benefits,
-                Status = p.Status,
+                Status = DateTime.Now >= p.Deadline ? PostStatus.Unpublished : p.Status,
                 Title = p.Title,
                 TrainingSessionId = p.TrainingSessionId,
 
@@ -46,7 +46,9 @@ namespace ITConnect.Models.Repositories
 
         public async Task<PagedResults<InternshipResponse>> GetInternshipResponsePageAsync(string? searchstring, string? location, string? track, int currentpage, int pagesize)
         {
-            var query = Db.Posts.IgnoreQueryFilters().AsQueryable();
+            var query = Db.Posts.IgnoreQueryFilters()
+                .Where(p => p.Status == PostStatus.Published && DateTime.Now < p.Deadline)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchstring))
                 query = query.Where(p => p.Title.Contains(searchstring) || p.Company.Name.Contains(searchstring));

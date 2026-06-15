@@ -1,4 +1,4 @@
-﻿using ITConnect.Models;
+using ITConnect.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -26,7 +26,9 @@ namespace ITConnect.Data.Configuration
                 .WithMany()
                 .HasForeignKey(x => x.TrackId)
                 .OnDelete(DeleteBehavior.Restrict);
-                
+
+            builder.Property(x => x.TrainingStatus)
+                .HasConversion<string>();
         }
     }
 }

@@ -21,6 +21,11 @@ namespace ITConnect.Services
 
         public async Task<bool> CreatTrainingSessionAsync(CreatTrainingSessionRequest creatTrainingSessionRequest)
         {
+            var now = DateTime.Now;
+            var initialStatus = now >= creatTrainingSessionRequest.EndDate ? TrainingStatus.Complete :
+                                now >= creatTrainingSessionRequest.StartDate ? TrainingStatus.InComplete :
+                                TrainingStatus.Pending;
+
             TrainingSession trainingSession = new TrainingSession()
             {
                 Name = creatTrainingSessionRequest.Name,
@@ -33,7 +38,7 @@ namespace ITConnect.Services
                 StartDate = creatTrainingSessionRequest.StartDate,
                 TrackId = creatTrainingSessionRequest.TrackId,
                 TrainerId = creatTrainingSessionRequest.TrainerId,
-                TrainingStatus = "Pending",
+                TrainingStatus = initialStatus,
             };
 
             return await trainingSessionRepository.AddAsync(trainingSession);
@@ -55,7 +60,16 @@ namespace ITConnect.Services
             trainingSession.Id = updateTrainingSessionRequest.Id;
             trainingSession.Description = updateTrainingSessionRequest.Description;
             trainingSession.CompanyId = userContext.CompanyId;
-            trainingSession.EndDate = updateTrainingSessionRequest.EndDate;
+            
+            if (updateTrainingSessionRequest.TrainingStatus == TrainingStatus.Complete)
+            {
+                trainingSession.EndDate = DateTime.Now;
+            }
+            else
+            {
+                trainingSession.EndDate = updateTrainingSessionRequest.EndDate;
+            }
+            
             trainingSession.StartDate = updateTrainingSessionRequest.StartDate;
             trainingSession.TrackId = updateTrainingSessionRequest.TrackId;
             trainingSession.TrainerId = updateTrainingSessionRequest.TrainerId;

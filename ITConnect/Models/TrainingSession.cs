@@ -1,6 +1,14 @@
-﻿namespace ITConnect.Models
-{
+using System.Text.Json.Serialization;
 
+namespace ITConnect.Models
+{
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum TrainingStatus
+    {
+        Pending,
+        InComplete,
+        Complete
+    }
 
     public class TrainingSession :BaseEntity
     {
@@ -11,7 +19,7 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int SeatsNumber { get; set; }
-        public string TrainingStatus { get; set; }
+        public TrainingStatus TrainingStatus { get; set; }
 
         //relations
         public string TrackId { get; set; }

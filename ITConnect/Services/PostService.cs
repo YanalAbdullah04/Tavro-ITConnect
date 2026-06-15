@@ -1,4 +1,4 @@
-﻿using ITConnect.Data.RequestsModel.PostDTOs;
+using ITConnect.Data.RequestsModel.PostDTOs;
 using ITConnect.Data.ResponsesModel;
 using ITConnect.Models;
 using ITConnect.Models.Repositories;
@@ -21,6 +21,12 @@ namespace ITConnect.Services
 
         public async Task<bool> AddPostAsync(AddPostRequest postRequest)
         {
+            var initialStatus = postRequest.Status ?? PostStatus.Pending;
+            if (initialStatus == PostStatus.Published && System.DateTime.Now >= postRequest.Deadline)
+            {
+                initialStatus = PostStatus.Unpublished;
+            }
+
             Post post = new Post()
             {
                 Benefits = postRequest.Benefits,
@@ -31,7 +37,7 @@ namespace ITConnect.Services
                 Responsibility = postRequest.Responsibility,
                 Title = postRequest.Title,
                 TrainingSessionId = postRequest.TrainingSessionId, 
-                Status = postRequest.Status ?? PostStatus.Pending
+                Status = initialStatus
             };
             return await postRepository.AddAsync(post);
         }
@@ -57,9 +63,15 @@ namespace ITConnect.Services
             if (post == null)
                 return false;
 
+            var newStatus = updatePostRequest.Status ?? post.Status;
+            if (newStatus == PostStatus.Published && System.DateTime.Now >= updatePostRequest.Deadline)
+            {
+                newStatus = PostStatus.Unpublished;
+            }
+
             post.Description = updatePostRequest.Description;
             post.Title = updatePostRequest.Title;
-            post.Status = updatePostRequest.Status ?? post.Status;
+            post.Status = newStatus;
             post.Deadline = updatePostRequest.Deadline;
             post.Benefits = updatePostRequest.Benefits;
             post.Responsibility = updatePostRequest.Responsibility;

@@ -1,4 +1,4 @@
-﻿using ITConnect.Models;
+using ITConnect.Models;
 
 namespace ITConnect.Data.ResponsesModel
 {
@@ -12,7 +12,7 @@ namespace ITConnect.Data.ResponsesModel
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int SeatsNumber { get; set; }
-        public string TrainingStatus { get; set; }
+        public TrainingStatus TrainingStatus { get; set; }
         public string TrackId { get; set; }
         public string TrackName { get; set; }
         public string TrainerId { get; set; }

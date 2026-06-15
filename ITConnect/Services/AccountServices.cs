@@ -243,7 +243,7 @@ namespace ITConnect.Services
                     var companyProfile = await UnitOfWork.CompanyRepository.GetByIdAsync(userContext.CompanyId);
                     var companyName = companyProfile?.Name ?? "ITConnect System";
 
-                    var baseUrl = "http://localhost:8080";
+                    var baseUrl = (Configuration["FrontendUrl"] ?? "http://localhost:8080").TrimEnd('/');
              
 
                     var pagePath = "/profile-setting";
@@ -361,7 +361,7 @@ namespace ITConnect.Services
                     if (trainer == null) return false;
 
                     trainer.GithubUsername = trainerProfileSettingRequest.GitHubAccount;
-                    trainer.ImgUrl = trainerProfileSettingRequest.ImgUrl; //غيرها تنساش 
+                    // trainer.ImgUrl = trainerProfileSettingRequest.ImgUrl; //غيرها تنساش 
 
                     
                     await UnitOfWork.CompleteAsync();
