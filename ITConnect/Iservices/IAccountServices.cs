@@ -1,4 +1,4 @@
-﻿using ITConnect.Data;
+using ITConnect.Data;
 using ITConnect.Data.RequestsModel.AuthDTOs;
 using ITConnect.Data.RequestsModel.TrainerDto;
 using ITConnect.Data.ResponsesModel;
@@ -7,6 +7,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ITConnect.Services.Iservices
 {
+    public class TrainerProfileSettingResult
+    {
+        public bool IsSuccess { get; set; }
+        public bool IsAlreadyCompleted { get; set; }
+        public List<string> Errors { get; set; } = new();
+    }
+
     public interface IAccountServices
     {
 
@@ -19,7 +26,7 @@ namespace ITConnect.Services.Iservices
 
         public Task<LoginAuthResponse> Login(LoginDto logInDto);
         public Task<bool> UpdateUserIdentityAsync(string userId, string email, string phone);
-        public Task<bool> SettingTrainerProfileAsync(TrainerProfileSettingRequest trainerProfileSettingRequest);
+        public Task<TrainerProfileSettingResult> SettingTrainerProfileAsync(TrainerProfileSettingRequest trainerProfileSettingRequest);
         public Task<bool> DeleteUserAccountAsync(string userId);
 
     }

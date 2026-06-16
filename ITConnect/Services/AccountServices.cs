@@ -336,29 +336,65 @@ namespace ITConnect.Services
             return false;
         }
 
-        public async Task<bool> SettingTrainerProfileAsync(TrainerProfileSettingRequest trainerProfileSettingRequest)
+        public async Task<TrainerProfileSettingResult> SettingTrainerProfileAsync(TrainerProfileSettingRequest trainerProfileSettingRequest)
         {
+            var result = new TrainerProfileSettingResult();
 
             using (var transaction =  await UnitOfWork.BeginTransactionAsync())
             {
                
                 var userId = userContext.RawId;
-                if (string.IsNullOrEmpty(userId)) return false;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    result.Errors.Add("User not authenticated or invalid token.");
+                    return result;
+                }
 
                 var user = await UserManager.FindByIdAsync(userId);
-                if (user == null) return false;
+                if (user == null)
+                {
+                    user = await UserManager.FindByEmailAsync(userId);
+                }
+                if (user == null)
+                {
+                    result.Errors.Add("Trainer user account not found.");
+                    return result;
+                }
+
+                userId = user.Id;
+
                 try
                 {
+                    var claims = await UserManager.GetClaimsAsync(user);
+                    if (claims.Any(c => c.Type == "ProfileCompleted" && c.Value == "true"))
+                    {
+                        result.IsAlreadyCompleted = true;
+                        result.Errors.Add("Link expired or profile already completed.");
+                        return result;
+                    }
 
                     await UserManager.RemovePasswordAsync(user);
                     var addPasswordResult = await UserManager.AddPasswordAsync(user, trainerProfileSettingRequest.Password);
 
-                    if (!addPasswordResult.Succeeded) return false;
+                    if (!addPasswordResult.Succeeded)
+                    {
+                        result.Errors.AddRange(addPasswordResult.Errors.Select(e => e.Description));
+                        return result;
+                    }
 
-                 
+                    var addClaimResult = await UserManager.AddClaimAsync(user, new Claim("ProfileCompleted", "true"));
+                    if (!addClaimResult.Succeeded)
+                    {
+                        result.Errors.AddRange(addClaimResult.Errors.Select(e => e.Description));
+                        return result;
+                    }
 
                     var trainer = await UnitOfWork.TrainerRepository.GetByIdAsync(userId);
-                    if (trainer == null) return false;
+                    if (trainer == null)
+                    {
+                        result.Errors.Add("Trainer profile record not found.");
+                        return result;
+                    }
 
                     trainer.GithubUsername = trainerProfileSettingRequest.GitHubAccount;
                     // trainer.ImgUrl = trainerProfileSettingRequest.ImgUrl; //غيرها تنساش 
@@ -367,12 +403,14 @@ namespace ITConnect.Services
                     await UnitOfWork.CompleteAsync();
                     await UnitOfWork.CommitTransactionAsync();
 
-                    return true;
+                    result.IsSuccess = true;
+                    return result;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return false;
+                    result.Errors.Add($"An error occurred: {ex.Message}");
+                    return result;
                 }
             }
 

@@ -75,24 +75,19 @@ namespace ITConnect.Controllers
         }
         [Authorize(Roles = "Trainer")]
         [HttpPost("Trainer/profile-setting")]
-        public async Task<ActionResult<RegistrationAuthResponse>> settingTrainerProfile(TrainerProfileSettingRequest trainerProfileSettingRequest)
+        public async Task<IActionResult> settingTrainerProfile(TrainerProfileSettingRequest trainerProfileSettingRequest)
         {
-            bool result = false; ;
             try
             {
-
-
-
-             result = await AccountServices.SettingTrainerProfileAsync(trainerProfileSettingRequest);
-
-
-
-                return Ok();
-
-
+                var result = await AccountServices.SettingTrainerProfileAsync(trainerProfileSettingRequest);
+                if (result.IsSuccess)
+                    return Ok();
+                
+                return BadRequest(new { errors = result.Errors });
             }
-            catch (Exception ex) {
-                return BadRequest(result);
+            catch (Exception ex)
+            {
+                return BadRequest(new { errors = new[] { ex.Message } });
             }
         }
 
