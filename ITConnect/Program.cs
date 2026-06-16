@@ -61,6 +61,7 @@ builder.Services.AddAuthentication(options =>
 {
     op.SaveToken = true;
     op.RequireHttpsMetadata = false;
+    op.MapInboundClaims = false;
     op.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuerSigningKey = true,
