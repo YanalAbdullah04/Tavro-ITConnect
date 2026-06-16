@@ -38,7 +38,7 @@ namespace ITConnect.Models.Repositories
                     TrackId = x.TrackId,
                     TrainerId = x.TrainerId,
                     TrainingStatus = DateTime.Now >= x.EndDate ? TrainingStatus.Complete :
-                                     DateTime.Now >= x.StartDate ? TrainingStatus.InComplete :
+                                     DateTime.Now >= x.StartDate ? TrainingStatus.Active :
                                      x.TrainingStatus,
                     TrainingSessionName = x.Name,
                     TrainerName = x.Trainer.Name,

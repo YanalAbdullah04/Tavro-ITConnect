@@ -1,4 +1,4 @@
-﻿using ITConnect.Models;
+using ITConnect.Models;
 
 namespace ITConnect.Data.ResponsesModel.TraineeResponseModels
 {
@@ -14,5 +14,6 @@ namespace ITConnect.Data.ResponsesModel.TraineeResponseModels
         public string Benefits { get; set; }
         public string TrainingSessionId { get; set; } // unique
         public int ApplicatantCount { get; set; }
+        public bool Applied { get; set; }
     }
 }

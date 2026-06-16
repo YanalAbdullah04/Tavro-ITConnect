@@ -1,4 +1,4 @@
-﻿using ITConnect.Data.ResponsesModel;
+using ITConnect.Data.ResponsesModel;
 using ITConnect.Iservices;
 using ITConnect.Models;
 using ITConnect.Models.Repositories;
@@ -50,9 +50,19 @@ namespace ITConnect.Controllers
         [Authorize(Roles = "Company")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateStatus(Guid id, [FromQuery] ApplicantStatus status) {
-            var reult = await applicantService.UpdateApplicantStatusAsync(id.ToString(), status);
-            return NoContent();
-      
+            try
+            {
+                var result = await applicantService.UpdateApplicantStatusAsync(id.ToString(), status);
+                if (!result)
+                {
+                    return NotFound();
+                }
+                return NoContent();
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // dont forget to addd it when developing trainee dahsboard

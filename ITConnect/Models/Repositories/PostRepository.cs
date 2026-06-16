@@ -44,7 +44,7 @@ namespace ITConnect.Models.Repositories
             return response;
         }
 
-        public async Task<PagedResults<InternshipResponse>> GetInternshipResponsePageAsync(string? searchstring, string? location, string? track, int currentpage, int pagesize)
+        public async Task<PagedResults<InternshipResponse>> GetInternshipResponsePageAsync(string? searchstring, string? location, string? track, int currentpage, int pagesize, string? traineeId)
         {
             var query = Db.Posts.IgnoreQueryFilters()
                 .Where(p => p.Status == PostStatus.Published && DateTime.Now < p.Deadline)
@@ -59,6 +59,8 @@ namespace ITConnect.Models.Repositories
             if (!string.IsNullOrEmpty(track))
                 query = query.Where(p => p.TrainingSession.TrackId == track);
 
+            var hasTraineeId = !string.IsNullOrEmpty(traineeId);
+
             var result = query.Select(p => new InternshipResponse()
             {
                 PostId = p.Id,
@@ -67,14 +69,17 @@ namespace ITConnect.Models.Repositories
                 StartDate = p.TrainingSession.StartDate,
                 EndDate = p.TrainingSession.EndDate,
                 CompanyName = p.Company.Name,
-                NumberOfApplicant = Db.Applicants.IgnoreQueryFilters().Where(a => a.TrainingSessionId == p.TrainingSessionId).Count()
+                NumberOfApplicant = Db.Applicants.IgnoreQueryFilters().Where(a => a.TrainingSessionId == p.TrainingSessionId).Count(),
+                Applied = hasTraineeId && Db.Applicants.IgnoreQueryFilters().Any(a => a.TraineeId == traineeId && a.TrainingSessionId == p.TrainingSessionId)
             });
 
             return await PaginationExtensions.ToPagedResultAsync(result, currentpage, pagesize);
         }
 
-        public async Task<InternShipDetailesResponse> GetInternshipDetailesAsync(string postId)
+        public async Task<InternShipDetailesResponse> GetInternshipDetailesAsync(string postId, string? traineeId)
         {
+            var hasTraineeId = !string.IsNullOrEmpty(traineeId);
+
             var result = await Db.Posts.IgnoreQueryFilters().Where(p => p.Id == postId).Select(p => new InternShipDetailesResponse()
             {
                 Title = p.Title,
@@ -86,7 +91,8 @@ namespace ITConnect.Models.Repositories
                 Responsibility = p.Responsibility,
                 Benefits = p.Benefits,
                 TrainingSessionId = p.TrainingSessionId,
-                ApplicatantCount = Db.Applicants.IgnoreQueryFilters().Where(a => a.TrainingSessionId == p.TrainingSessionId).Count()
+                ApplicatantCount = Db.Applicants.IgnoreQueryFilters().Where(a => a.TrainingSessionId == p.TrainingSessionId).Count(),
+                Applied = hasTraineeId && Db.Applicants.IgnoreQueryFilters().Any(a => a.TraineeId == traineeId && a.TrainingSessionId == p.TrainingSessionId)
             }).FirstOrDefaultAsync();
 
             return result;

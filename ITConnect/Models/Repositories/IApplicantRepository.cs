@@ -20,4 +20,5 @@ public interface IApplicantRepository:IGenericRepository<Applicant>
 
     Task<bool> HasAppliedAsync(string traineeId, string trainingSessionId);
     Task<bool> CreateApplicationAsync(string postId, string traineeId);
+    Task DeleteOtherApplicationsAsync(string traineeId, string currentApplicantId);
 }
