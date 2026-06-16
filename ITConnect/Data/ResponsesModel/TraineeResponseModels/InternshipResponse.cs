@@ -9,5 +9,6 @@
         public DateTime EndDate { get; set; }
         public string CompanyName { get; set; }
         public int NumberOfApplicant { get; set; }
+        public bool Applied { get; set; }
     }
 }

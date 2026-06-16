@@ -23,12 +23,14 @@ namespace ITConnect.Services
 
         public async Task<PagedResults<InternshipResponse>> GetAllInternshipsAsync(string? searchString, string? location, string? trackId, int currentPage, int pageSize)
         {
-            return await postRepository.GetInternshipResponsePageAsync(searchString, location, trackId, currentPage, pageSize);
+            var traineeId = userContext.IsTrainee ? userContext.TraineeId : null;
+            return await postRepository.GetInternshipResponsePageAsync(searchString, location, trackId, currentPage, pageSize, traineeId);
         }
 
         public async Task<InternShipDetailesResponse> GetInternshipDetailesAsync(string postId)
         {
-            return await postRepository.GetInternshipDetailesAsync(postId);
+            var traineeId = userContext.IsTrainee ? userContext.TraineeId : null;
+            return await postRepository.GetInternshipDetailesAsync(postId, traineeId);
         }
 
         public async Task<bool> ApplyAsync(string postId)

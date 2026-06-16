@@ -135,5 +135,15 @@ namespace ITConnect.Models.Repositories
             await Db.Applicants.AddAsync(applicant);
             return await Db.SaveChangesAsync() > 0;
         }
+
+        public async Task DeleteOtherApplicationsAsync(string traineeId, string currentApplicantId)
+        {
+            var otherApplicants = await Db.Applicants
+                .IgnoreQueryFilters()
+                .Where(a => a.TraineeId == traineeId && a.Id != currentApplicantId)
+                .ToListAsync();
+
+            Db.Applicants.RemoveRange(otherApplicants);
+        }
     }
 }

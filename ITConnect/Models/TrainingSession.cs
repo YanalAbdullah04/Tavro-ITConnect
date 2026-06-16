@@ -6,7 +6,7 @@ namespace ITConnect.Models
     public enum TrainingStatus
     {
         Pending,
-        InComplete,
+        Active,
         Complete
     }
 

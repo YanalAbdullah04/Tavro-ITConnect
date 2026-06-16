@@ -10,8 +10,8 @@ namespace ITConnect.Models.Repositories
         Task<PostResponse> GetPostResponseAsync(Post post);
         Task<List<PostResponse>> GetPostResponseAsync();
         IQueryable<PostResponse> GetPostResponseeQuery();
-        Task<PagedResults<InternshipResponse>> GetInternshipResponsePageAsync(string? searchstring, string? location, string? track, int currentpage, int pagesize);
-        Task<InternShipDetailesResponse> GetInternshipDetailesAsync(string postId);
+        Task<PagedResults<InternshipResponse>> GetInternshipResponsePageAsync(string? searchstring, string? location, string? track, int currentpage, int pagesize, string? traineeId);
+        Task<InternShipDetailesResponse> GetInternshipDetailesAsync(string postId, string? traineeId);
 
 
 

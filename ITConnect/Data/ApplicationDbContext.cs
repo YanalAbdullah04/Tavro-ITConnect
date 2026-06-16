@@ -27,7 +27,7 @@ public class ApplicationDbContext : IdentityDbContext
             }
             else if (now >= session.StartDate)
             {
-                session.TrainingStatus = TrainingStatus.InComplete;
+                session.TrainingStatus = TrainingStatus.Active;
             }
             else
             {

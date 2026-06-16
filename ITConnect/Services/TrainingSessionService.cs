@@ -23,7 +23,7 @@ namespace ITConnect.Services
         {
             var now = DateTime.Now;
             var initialStatus = now >= creatTrainingSessionRequest.EndDate ? TrainingStatus.Complete :
-                                now >= creatTrainingSessionRequest.StartDate ? TrainingStatus.InComplete :
+                                now >= creatTrainingSessionRequest.StartDate ? TrainingStatus.Active :
                                 TrainingStatus.Pending;
 
             TrainingSession trainingSession = new TrainingSession()

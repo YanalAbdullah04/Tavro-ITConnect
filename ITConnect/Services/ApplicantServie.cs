@@ -44,6 +44,11 @@ namespace ITConnect.Services
             if (applicant == null)
                 return false;
 
+            if (applicant.Status.Equals(ApplicantStatus.Accepted))
+            {
+                throw new InvalidOperationException("cant change accepeted trainee");
+            }
+
             applicant.Status = status;
 
             if (status.Equals(ApplicantStatus.Accepted))
@@ -55,9 +60,8 @@ namespace ITConnect.Services
 
                 trainee.TrainingSessionId = applicant.TrainingSessionId;
                 trainee.CompanyId=applicant.CompanyId;
-              await traineeRepository.UpdateAsync(trainee.Id,trainee);
-               
-
+                await traineeRepository.UpdateAsync(trainee.Id,trainee);
+                await applicantRepository.DeleteOtherApplicationsAsync(applicant.TraineeId, applicantId);
             }
      
             return await applicantRepository.UpdateAsync(applicantId, applicant);

@@ -113,6 +113,10 @@ builder.Services.AddScoped<IEmailService,EmailService>();
 builder.Services.AddScoped<ITraineeService, TraineeService>();
 builder.Services.AddScoped<ITraineeRepository, TraineeRepository>();
 
+//company services
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
+
 // GitHub Service Integration
 builder.Services.AddHttpClient();
 builder.Services.AddMemoryCache();
