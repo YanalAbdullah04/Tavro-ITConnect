@@ -135,7 +135,7 @@ namespace ITConnect.Services
                 }
             }
         }
-        public async Task<RegistrationAuthResponse> RegisterTraineeAsync(RegisterationRequest registerationRequest)
+        public async Task<RegistrationAuthResponse> RegisterTraineeAsync(TraineeRegistrationRequest registerationRequest)
         {
             using (var transaction = await UnitOfWork.BeginTransactionAsync())
             {
@@ -151,7 +151,7 @@ namespace ITConnect.Services
                     {
                         Id = user.Id,
                         Name = registerationRequest.Name,
-
+                        GithubUsername = registerationRequest.GithubUsername,
                     };
 
                     if (!await UnitOfWork.TraineeRepository.AddAsync(trainee))

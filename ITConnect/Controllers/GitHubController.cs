@@ -38,7 +38,7 @@ public class GitHubController : ControllerBase
 
     [Authorize(Roles = "Trainee")]
     [HttpGet("install-url")]
-    public ActionResult<GitHubInstallUrlResponse> GetInstallUrl()
+    public async Task<ActionResult<GitHubInstallUrlResponse>> GetInstallUrl()
     {
         var traineeId = _userContext.TraineeId;
         var appSlug = _configuration["GitHubConfig:AppSlug"];
@@ -46,6 +46,44 @@ public class GitHubController : ControllerBase
             return Unauthorized();
         if (string.IsNullOrWhiteSpace(appSlug) || GetFrontendOrigin() == null)
             return Problem("GitHub App integration configuration is incomplete.", statusCode: StatusCodes.Status503ServiceUnavailable);
+
+        var trainee = await _traineeRepository.GetByIdAsync(traineeId);
+        if (trainee != null && !trainee.GithubInstallationId.HasValue && !string.IsNullOrWhiteSpace(trainee.GithubUsername))
+        {
+            try
+            {
+                var installation = await _gitHubService.GetUserInstallationAsync(trainee.GithubUsername);
+                if (installation != null)
+                {
+                    trainee.GithubInstallationId = installation.InstallationId;
+                    await _traineeRepository.UpdateAsync(trainee.Id, trainee);
+                }
+            }
+            catch (Exception)
+            {
+                // Fallback to normal flow if lookup fails
+            }
+        }
+
+        // Re-check after potential auto-connect
+        if (trainee != null && trainee.GithubInstallationId.HasValue)
+        {
+            var dummyExpiresAt = DateTime.UtcNow.AddMinutes(GetStateLifetimeMinutes());
+            var dummyState = _stateProtector.Protect(JsonSerializer.Serialize(new GitHubInstallState
+            {
+                TraineeId = traineeId,
+                ExpiresAtUnixSeconds = new DateTimeOffset(dummyExpiresAt).ToUnixTimeSeconds(),
+                Nonce = Convert.ToHexString(RandomNumberGenerator.GetBytes(24))
+            }));
+            
+            var localCallbackUrl = $"{Request.Scheme}://{Request.Host}/api/GitHub/callback?installation_id={trainee.GithubInstallationId.Value}&state={Uri.EscapeDataString(dummyState)}";
+
+            return Ok(new GitHubInstallUrlResponse
+            {
+                InstallUrl = localCallbackUrl,
+                StateExpiresAt = dummyExpiresAt
+            });
+        }
 
         var expiresAt = DateTime.UtcNow.AddMinutes(GetStateLifetimeMinutes());
         var state = _stateProtector.Protect(JsonSerializer.Serialize(new GitHubInstallState
@@ -125,12 +163,36 @@ public class GitHubController : ControllerBase
 
         var trainee = await _traineeRepository.GetByIdAsync(traineeId);
         if (trainee == null) return NotFound(new { message = "Trainee was not found." });
+
+        GitHubInstallationMetadata? installation = null;
+
+        if (!trainee.GithubInstallationId.HasValue && !string.IsNullOrWhiteSpace(trainee.GithubUsername))
+        {
+            try
+            {
+                installation = await _gitHubService.GetUserInstallationAsync(trainee.GithubUsername);
+                if (installation != null)
+                {
+                    trainee.GithubInstallationId = installation.InstallationId;
+                    await _traineeRepository.UpdateAsync(trainee.Id, trainee);
+                }
+            }
+            catch (Exception)
+            {
+                // Fallback to disconnected status if lookup fails
+            }
+        }
+
         if (!trainee.GithubInstallationId.HasValue)
             return Ok(new GitHubStatusResponse { IsConnected = false });
 
         try
         {
-            var installation = await _gitHubService.GetInstallationAsync(trainee.GithubInstallationId.Value);
+            if (installation == null)
+            {
+                installation = await _gitHubService.GetInstallationAsync(trainee.GithubInstallationId.Value);
+            }
+
             if (installation == null)
             {
                 trainee.GithubInstallationId = null;
@@ -169,8 +231,30 @@ public class GitHubController : ControllerBase
         if (trainee == null) return NotFound(new { message = "Trainee was not found." });
         if (!trainee.GithubInstallationId.HasValue) return NoContent();
 
+        var installationId = trainee.GithubInstallationId.Value;
+
+        // Clear the local linkage first so the trainee is always "disconnected"
+        // from our side, even if the GitHub API call below fails.
         trainee.GithubInstallationId = null;
         await _traineeRepository.UpdateAsync(trainee.Id, trainee);
+
+        // Remove the installation from the user's GitHub account so that
+        // reconnecting triggers a fresh "Install & Authorize" flow.
+        try
+        {
+            await _gitHubService.DeleteInstallationAsync(installationId);
+        }
+        catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException)
+        {
+            // The local record is already cleared.  Return 207 so the frontend
+            // knows the disconnect succeeded locally but GitHub removal failed.
+            return StatusCode(StatusCodes.Status207MultiStatus, new
+            {
+                message = "Disconnected locally, but the GitHub App installation could not be removed. " +
+                          "You may need to uninstall it manually from your GitHub settings."
+            });
+        }
+
         return NoContent();
     }
 
@@ -187,7 +271,7 @@ public class GitHubController : ControllerBase
         }
         catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException)
         {
-            return GitHubAccessFailure(exception);
+            return await HandleGitHubExceptionAsync(exception, trainee.Value!);
         }
     }
 
@@ -195,16 +279,16 @@ public class GitHubController : ControllerBase
     [HttpGet("branches/{traineeId:guid}/{owner}/{repoName}")]
     public async Task<IActionResult> GetBranches(string traineeId, string owner, string repoName)
     {
-        var trainee = await GetAccessibleConnectedTrainee(traineeId);
+        var trainee = await GetAccessibleTrainee(traineeId);
         if (trainee.Result != null) return trainee.Result;
 
         try
         {
-            return Content(await _gitHubService.GetBranchesAsync(trainee.Value!.GithubInstallationId!.Value, owner, repoName), "application/json");
+            return Content(await _gitHubService.GetBranchesAsync(trainee.Value!.GithubInstallationId, owner, repoName), "application/json");
         }
         catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException)
         {
-            return GitHubAccessFailure(exception);
+            return await HandleGitHubExceptionAsync(exception, trainee.Value!);
         }
     }
 
@@ -213,18 +297,18 @@ public class GitHubController : ControllerBase
     [HttpGet("content/{traineeId:guid}/{owner}/{repoName}/{branch}/{*filePath}")]
     public async Task<IActionResult> GetFileContent(string traineeId, string owner, string repoName, string branch, string? filePath = null)
     {
-        var trainee = await GetAccessibleConnectedTrainee(traineeId);
+        var trainee = await GetAccessibleTrainee(traineeId);
         if (trainee.Result != null) return trainee.Result;
 
         try
         {
             return Content(
-                await _gitHubService.GetFileContentAsync(trainee.Value!.GithubInstallationId!.Value, owner, repoName, branch, filePath),
+                await _gitHubService.GetFileContentAsync(trainee.Value!.GithubInstallationId, owner, repoName, branch, filePath),
                 "application/json");
         }
         catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException)
         {
-            return GitHubAccessFailure(exception);
+            return await HandleGitHubExceptionAsync(exception, trainee.Value!);
         }
     }
 
@@ -237,10 +321,43 @@ public class GitHubController : ControllerBase
         return trainee;
     }
 
-    private ObjectResult GitHubAccessFailure(Exception exception) =>
-        exception is InvalidOperationException
-            ? StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "GitHub App integration configuration is incomplete." })
-            : StatusCode(StatusCodes.Status502BadGateway, new { message = "GitHub could not complete the repository request." });
+    private async Task<ActionResult<Trainee>> GetAccessibleTrainee(string traineeId)
+    {
+        var trainee = await _traineeRepository.GetByIdAsync(traineeId);
+        if (trainee == null) return NotFound(new { message = "Trainee GitHub access was not found." });
+        return trainee;
+    }
+
+    private async Task<IActionResult> HandleGitHubExceptionAsync(Exception exception, Trainee trainee)
+    {
+        if (exception is HttpRequestException httpException && httpException.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            if (trainee.GithubInstallationId.HasValue)
+            {
+                trainee.GithubInstallationId = null;
+                await _traineeRepository.UpdateAsync(trainee.Id, trainee);
+            }
+            return Conflict(new { message = "Repository not found or access denied. Ensure the repository is public or connect the GitHub App." });
+        }
+
+        return GitHubAccessFailure(exception);
+    }
+
+    private ObjectResult GitHubAccessFailure(Exception exception)
+    {
+        if (exception is InvalidOperationException)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = exception.Message });
+        }
+
+        if (exception is HttpRequestException httpException)
+        {
+            var code = httpException.StatusCode.HasValue ? (int)httpException.StatusCode.Value : StatusCodes.Status502BadGateway;
+            return StatusCode(code, new { message = $"{httpException.Message} (GitHub API responded with {(httpException.StatusCode.HasValue ? (int)httpException.StatusCode.Value : "unknown status")})" });
+        }
+
+        return StatusCode(StatusCodes.Status502BadGateway, new { message = $"GitHub could not complete the repository request: {exception.Message}" });
+    }
 
     private IActionResult CallbackPage(bool success, string message, int statusCode)
     {

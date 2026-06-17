@@ -1,4 +1,4 @@
-﻿using ITConnect.Models;
+using ITConnect.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,11 +24,9 @@ namespace ITConnect.Data.Configuration
                 .WithMany()
                 .HasForeignKey(t => t.TrainingSessionId)
                 .OnDelete(DeleteBehavior.NoAction);
-                
-               
-            
-            
 
+            builder.Property(x => x.GithubUsername)
+                .IsRequired();
         }
     }
 

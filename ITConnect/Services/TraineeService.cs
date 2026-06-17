@@ -45,6 +45,7 @@ namespace ITConnect.Services
             Trainee.Name = traineeProfileRequestAndResponse.Name;
             Trainee.ImageUrl = traineeProfileRequestAndResponse.ImageUrl;
             Trainee.Skills = traineeProfileRequestAndResponse.Skills;
+            Trainee.GithubUsername = traineeProfileRequestAndResponse.GithubUsername ?? string.Empty;
 
             if (traineeProfileRequestAndResponse.ResumeFile != null)
             {

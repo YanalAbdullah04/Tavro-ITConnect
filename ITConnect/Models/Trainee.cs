@@ -22,6 +22,7 @@ namespace ITConnect.Models
         public string? ImageUrl { get; set; }
 
         public long? GithubInstallationId { get; set; }
+        public string GithubUsername { get; set; } = string.Empty;
     }
 
 }

@@ -21,7 +21,7 @@ namespace ITConnect.Services.Iservices
         public Task<(IdentityResult Result, IdentityUser User)> RegisterBaseEntityAsync(RegisterationRequest registerCompanyRequest, string role);
 
         public  Task<RegistrationAuthResponse> RegisterCompanyAsync(RegisterationRequest registerCompanyRequest);
-        public  Task<RegistrationAuthResponse> RegisterTraineeAsync(RegisterationRequest registerCompanyRequest);
+        public  Task<RegistrationAuthResponse> RegisterTraineeAsync(TraineeRegistrationRequest registerTraineeRequest);
         public  Task<RegistrationAuthResponse> RegisterTrainerAsync(TrainerRegistrationRequest TrainerRegisterationRequest);
 
         public Task<LoginAuthResponse> Login(LoginDto logInDto);

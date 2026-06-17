@@ -6,8 +6,10 @@ namespace ITConnect.Services.Iservices
     {
         Task<string> GetInstallationTokenAsync(long installationId);
         Task<GitHubInstallationMetadata?> GetInstallationAsync(long installationId);
+        Task<GitHubInstallationMetadata?> GetUserInstallationAsync(string username);
+        Task DeleteInstallationAsync(long installationId);
         Task<string> GetRepositoriesAsync(long installationId);
-        Task<string> GetBranchesAsync(long installationId, string owner, string repoName);
-        Task<string> GetFileContentAsync(long installationId, string owner, string repoName, string branch, string? filePath);
+        Task<string> GetBranchesAsync(long? installationId, string owner, string repoName);
+        Task<string> GetFileContentAsync(long? installationId, string owner, string repoName, string branch, string? filePath);
     }
 }

@@ -14,6 +14,7 @@ namespace ITConnect.Data.ResponsesModel.TraineeResponseModels
         public string? ImageUrl { get; set; }
 
         public long? GithubInstallationId { get; set; }
+        public string? GithubUsername { get; set; }
         
         public IFormFile? ResumeFile { get; set; }
     }

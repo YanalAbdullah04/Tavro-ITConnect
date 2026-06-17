@@ -43,6 +43,7 @@ namespace ITConnect.Models.Repositories
                          ResumeUrl = x.ResumeUrl,
                          Skills = x.Skills,
                          GithubInstallationId = x.GithubInstallationId,
+                         GithubUsername = x.GithubUsername,
                      }
                  );
             return response;

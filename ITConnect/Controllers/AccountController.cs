@@ -41,7 +41,7 @@ namespace ITConnect.Controllers
             }
         }
         [HttpPost("Register/Trainee")]
-        public async Task<ActionResult<RegistrationAuthResponse>> Traineesignup(RegisterationRequest registerationRequest)
+        public async Task<ActionResult<RegistrationAuthResponse>> Traineesignup(TraineeRegistrationRequest registerationRequest)
         {
             var result = await AccountServices.RegisterTraineeAsync(registerationRequest);
             try
