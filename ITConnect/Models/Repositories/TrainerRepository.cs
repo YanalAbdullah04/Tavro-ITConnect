@@ -55,6 +55,7 @@ namespace ITConnect.Models.Repositories
         private IQueryable<TrainingSummaryDto> GetTrainingsQuery(string trainerId)
         {
             return Db.TrainingSessions
+                .IgnoreQueryFilters()
                 .Where(ts => ts.TrainerId == trainerId)
                 .Select(ts => new TrainingSummaryDto
                 {
@@ -62,12 +63,13 @@ namespace ITConnect.Models.Repositories
                     StartDate = ts.StartDate,
                     EndDate = ts.EndDate,
                     Location = ts.Location,
-                    StudentCount = Db.Trainees.Count(tr => tr.TrainingSessionId == ts.Id)
+                    StudentCount = Db.Trainees.IgnoreQueryFilters().Count(tr => tr.TrainingSessionId == ts.Id)
                 });
         }
         private IQueryable<TraineeUnderTrainerDto> GetStudentsQuery(string trainerId)
         {
             return Db.Trainees
+                .IgnoreQueryFilters()
                 .Where(t => t.TrainingSession.Trainer.Id == trainerId)
                 .Select(t => new TraineeUnderTrainerDto
                 {
@@ -78,6 +80,7 @@ namespace ITConnect.Models.Repositories
         private IQueryable<TrainerProfileResponse> GetProfileBaseQuery(string trainerId)
         {
             return Db.Trainers
+                .IgnoreQueryFilters()
                 .Where(x => x.Id == trainerId)
                 .Select(t => new TrainerProfileResponse
                 {
@@ -87,9 +90,9 @@ namespace ITConnect.Models.Repositories
                     Phone = t.User.PhoneNumber,
                     Specialty = t.Specialization,
                     GitHubAccount=t.GithubUsername,
-                    TotalTrainingsCount = Db.TrainingSessions.Count(ts => ts.TrainerId == trainerId),
-                    TotalStudentsCount = Db.Trainees.Count(tr => tr.TrainingSession.TrainerId == trainerId),
-                    TotalTasksCount = Db.ApplicationTask.Count(at => at.TrainerId == trainerId)
+                    TotalTrainingsCount = Db.TrainingSessions.IgnoreQueryFilters().Count(ts => ts.TrainerId == trainerId),
+                    TotalStudentsCount = Db.Trainees.IgnoreQueryFilters().Count(tr => tr.TrainingSession.TrainerId == trainerId),
+                    TotalTasksCount = Db.ApplicationTask.IgnoreQueryFilters().Count(at => at.TrainerId == trainerId)
                 });
         }
 
@@ -126,38 +129,16 @@ namespace ITConnect.Models.Repositories
         public Task<PagedResults<TrainingDtoInTrainerOverview>> GetTrainerSessionsPageAsync(string trainerId, string? searchstring, int currentpage, int pagesize)
         {
             var query = Db.TrainingSessions
+                .IgnoreQueryFilters()
                 .Where(ts => ts.TrainerId == trainerId);
 
             if (!string.IsNullOrWhiteSpace(searchstring))
             {
-                var searchTerms = searchstring
-                    .Trim()
-                    .ToLower()
-                    .Split(new[] { ' ', '/', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var term in searchTerms)
-                {
-                    var currentTerm = term;
-                    var hasNumericTerm = int.TryParse(currentTerm, out var numericTerm);
-                    var monthNumber = GetMonthNumber(currentTerm);
-                    var hasMonthTerm = monthNumber.HasValue;
-                    var monthValue = monthNumber.GetValueOrDefault();
-
-                    query = query.Where(ts =>
-                        ts.Name.ToLower().Contains(currentTerm) ||
-                        ts.Location.ToLower().Contains(currentTerm) ||
-                        ts.Track.Name.ToLower().Contains(currentTerm) ||
-                        (hasNumericTerm && (
-                            ts.StartDate.Year == numericTerm ||
-                            ts.StartDate.Month == numericTerm ||
-                            ts.StartDate.Day == numericTerm ||
-                            ts.EndDate.Year == numericTerm ||
-                            ts.EndDate.Month == numericTerm ||
-                            ts.EndDate.Day == numericTerm)) ||
-                        (hasMonthTerm && (
-                            ts.StartDate.Month == monthValue ||
-                            ts.EndDate.Month == monthValue)));
-                }
+                var search = searchstring.Trim().ToLower();
+                query = query.Where(ts =>
+                    (ts.Name != null && ts.Name.ToLower().Contains(search)) ||
+                    (ts.Location != null && ts.Location.ToLower().Contains(search)) ||
+                    (ts.Track != null && ts.Track.Name != null && ts.Track.Name.ToLower().Contains(search)));
             }
 
             var result = query

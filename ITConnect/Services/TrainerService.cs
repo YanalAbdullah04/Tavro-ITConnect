@@ -35,15 +35,15 @@ namespace ITConnect.Services
 
         public async Task<TrainerProfileResponse?> GetTrainerProfileResponseAsync(string TrainerId)
         {
-          bool exist= await TrainerRepository.ExistByIdAsync(TrainerId);
-            if (!exist)
+            var trainer = await TrainerRepository.GetByIdIgnoreFiltersAsync(TrainerId);
+            if (trainer == null)
                 return null;
-           return await TrainerRepository.GetTrainerResponseProfileAsync(TrainerId);
+            return await TrainerRepository.GetTrainerResponseProfileAsync(TrainerId);
         }
 
         public async Task<bool> SettingTrainerProfileAsync(SettingTrainerProfileRequest updateTrainerRequest)
         {
-           var trainer= await TrainerRepository.GetByIdAsync(updateTrainerRequest.TrainerId);
+           var trainer = await TrainerRepository.GetByIdIgnoreFiltersAsync(updateTrainerRequest.TrainerId);
             if (trainer == null)
                 throw new Exception("trainer not found");
             var sucess = await accountServices.UpdateUserIdentityAsync(updateTrainerRequest.TrainerId, updateTrainerRequest.Email, updateTrainerRequest.Phone);
