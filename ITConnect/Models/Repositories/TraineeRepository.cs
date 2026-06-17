@@ -103,7 +103,9 @@ namespace ITConnect.Models.Repositories
                 .Select(a => new TraineeAnnouncementDto
                 {
                     AnnouncementId = a.Id,
-                    Title = a.Title
+                    Title = a.Title,
+                    Message = a.Message,
+                    CreatedAt = a.CreatedAt
                 });
         }
 
@@ -199,6 +201,11 @@ namespace ITConnect.Models.Repositories
                 {
                     TaskAssignmentId = ta.Id,
                     TaskTitle = ta.ApplicationTask.Title,
+                    TraineeId = ta.TraineeId,
+                    TraineeName = ta.Trainee.Name,
+                    TraineeEmail = ta.Trainee.User.Email,
+                    TrainingSessionId = ta.Trainee.TrainingSessionId,
+                    TrainingSessionName = ta.Trainee.TrainingSession.Name,
                     Deadline = ta.ApplicationTask.Deadline,
                     Feedback = ta.Feedback,
                     Grade = ta.Grad,
