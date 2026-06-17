@@ -130,11 +130,34 @@ namespace ITConnect.Models.Repositories
 
             if (!string.IsNullOrWhiteSpace(searchstring))
             {
-                var search = searchstring.Trim();
-                query = query.Where(ts =>
-                    ts.Name.Contains(search) ||
-                    ts.Location.Contains(search) ||
-                    ts.Track.Name.Contains(search));
+                var searchTerms = searchstring
+                    .Trim()
+                    .ToLower()
+                    .Split(new[] { ' ', '/', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var term in searchTerms)
+                {
+                    var currentTerm = term;
+                    var hasNumericTerm = int.TryParse(currentTerm, out var numericTerm);
+                    var monthNumber = GetMonthNumber(currentTerm);
+                    var hasMonthTerm = monthNumber.HasValue;
+                    var monthValue = monthNumber.GetValueOrDefault();
+
+                    query = query.Where(ts =>
+                        ts.Name.ToLower().Contains(currentTerm) ||
+                        ts.Location.ToLower().Contains(currentTerm) ||
+                        ts.Track.Name.ToLower().Contains(currentTerm) ||
+                        (hasNumericTerm && (
+                            ts.StartDate.Year == numericTerm ||
+                            ts.StartDate.Month == numericTerm ||
+                            ts.StartDate.Day == numericTerm ||
+                            ts.EndDate.Year == numericTerm ||
+                            ts.EndDate.Month == numericTerm ||
+                            ts.EndDate.Day == numericTerm)) ||
+                        (hasMonthTerm && (
+                            ts.StartDate.Month == monthValue ||
+                            ts.EndDate.Month == monthValue)));
+                }
             }
 
             var result = query
@@ -381,6 +404,26 @@ namespace ITConnect.Models.Repositories
                         task.GithubOwner = segments[segments.Length - 2];
                 }
             }
+        }
+
+        private static int? GetMonthNumber(string term)
+        {
+            return term switch
+            {
+                "jan" or "january" => 1,
+                "feb" or "february" => 2,
+                "mar" or "march" => 3,
+                "apr" or "april" => 4,
+                "may" => 5,
+                "jun" or "june" => 6,
+                "jul" or "july" => 7,
+                "aug" or "august" => 8,
+                "sep" or "sept" or "september" => 9,
+                "oct" or "october" => 10,
+                "nov" or "november" => 11,
+                "dec" or "december" => 12,
+                _ => null
+            };
         }
 
 
