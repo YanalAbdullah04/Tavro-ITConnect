@@ -103,7 +103,9 @@ namespace ITConnect.Models.Repositories
                 .Select(a => new TraineeAnnouncementDto
                 {
                     AnnouncementId = a.Id,
-                    Title = a.Title
+                    Title = a.Title,
+                    Message = a.Message,
+                    CreatedAt = a.CreatedAt
                 });
         }
 
@@ -199,6 +201,11 @@ namespace ITConnect.Models.Repositories
                 {
                     TaskAssignmentId = ta.Id,
                     TaskTitle = ta.ApplicationTask.Title,
+                    TraineeId = ta.TraineeId,
+                    TraineeName = ta.Trainee.Name,
+                    TraineeEmail = ta.Trainee.User.Email,
+                    TrainingSessionId = ta.Trainee.TrainingSessionId,
+                    TrainingSessionName = ta.Trainee.TrainingSession.Name,
                     Deadline = ta.ApplicationTask.Deadline,
                     Feedback = ta.Feedback,
                     Grade = ta.Grad,
@@ -239,6 +246,36 @@ namespace ITConnect.Models.Repositories
             {
                 TrainerTaskSubmissionsDtos = tasks
             };
+        }
+
+        public async Task<bool> EvaluateTaskAsync(string trainerId, string taskAssignmentId, string? feedback, string? grade)
+        {
+            if (string.IsNullOrWhiteSpace(trainerId) || string.IsNullOrWhiteSpace(taskAssignmentId))
+                return false;
+
+            var assignment = await Db.TaskAssignments
+                .IgnoreQueryFilters()
+                .Include(ta => ta.Trainee)
+                    .ThenInclude(t => t.TrainingSession)
+                .SingleOrDefaultAsync(ta =>
+                    ta.Id == taskAssignmentId &&
+                    ta.Trainee.TrainingSession.TrainerId == trainerId);
+
+            if (assignment == null) return false;
+
+            var hasSubmission = await Db.TaskSubmissions
+                .IgnoreQueryFilters()
+                .AnyAsync(ts => ts.TaskAssignmentId == taskAssignmentId && ts.SubmittedBy == assignment.TraineeId);
+
+            if (!hasSubmission) return false;
+
+            assignment.Feedback = string.IsNullOrWhiteSpace(feedback) ? null : feedback.Trim();
+            assignment.Grad = string.IsNullOrWhiteSpace(grade) ? null : grade.Trim();
+            assignment.Status = true;
+
+            Db.TaskAssignments.Update(assignment);
+            await Db.SaveChangesAsync();
+            return true;
         }
     }
 }

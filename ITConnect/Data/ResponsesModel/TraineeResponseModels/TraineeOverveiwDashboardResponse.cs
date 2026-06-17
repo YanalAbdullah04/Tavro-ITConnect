@@ -26,9 +26,10 @@ namespace ITConnect.Data.ResponsesModel.TraineeResponseModels
     {
         public string AnnouncementId { get; set; }
         public string Title { get; set; }
+        public string Message { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
 
 
     
-

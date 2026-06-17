@@ -1,4 +1,5 @@
 using ITConnect.Data.RequestsModel.TrainerResponse;
+using ITConnect.Data.RequestsModel.TrainerDto;
 using ITConnect.Data.ResponsesModel;
 using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Models.Repositories;
@@ -83,6 +84,62 @@ namespace ITConnect.Services
                 return null;
                 
             return await _trainingSessionRepository.GetTrainingSessionDetailesResponseAsync(id);
+        }
+
+        public async Task<PagedResults<TrainingDtoInTrainerOverview>> GetTrainerSessionsAsync(string? searchstring, int CurentPage, int PageSize)
+        {
+            var trainerId = GetCurrentTrainerId();
+            return await TrainerRepository.GetTrainerSessionsPageAsync(trainerId, searchstring, CurentPage, PageSize);
+        }
+
+        public async Task<PagedResults<StudentWithinTraining>> GetTrainerTraineesAsync(string? searchstring, string? trainingSessionId, int CurentPage, int PageSize)
+        {
+            var trainerId = GetCurrentTrainerId();
+            return await TrainerRepository.GetTrainerTraineesPageAsync(trainerId, searchstring, trainingSessionId, CurentPage, PageSize);
+        }
+
+        public async Task<PagedResults<TrainerTaskSubmissionsDto>> GetTaskDeliverablesAsync(string? searchstring, string? status, string? trainingSessionId, string? traineeId, int CurentPage, int PageSize)
+        {
+            var trainerId = GetCurrentTrainerId();
+            return await TrainerRepository.GetTaskDeliverablesPageAsync(trainerId, searchstring, status, trainingSessionId, traineeId, CurentPage, PageSize);
+        }
+
+        public async Task<TaskEvaluationsResponse> GetTaskEvaluationsMetaAsync()
+        {
+            var trainerId = GetCurrentTrainerId();
+            return await TrainerRepository.GetTaskEvaluationsMetaAsync(trainerId);
+        }
+
+        public async Task<PagedResults<TrainerAnnouncementResponse>> GetAnnouncementsAsync(string? searchstring, string? trainingSessionId, int CurentPage, int PageSize)
+        {
+            var trainerId = GetCurrentTrainerId();
+            return await TrainerRepository.GetAnnouncementsPageAsync(trainerId, searchstring, trainingSessionId, CurentPage, PageSize);
+        }
+
+        public async Task<bool> CreateAnnouncementAsync(AnnouncementRequest request)
+        {
+            var trainerId = GetCurrentTrainerId();
+            if (string.IsNullOrWhiteSpace(request.TrainingSessionId) ||
+                string.IsNullOrWhiteSpace(request.Title) ||
+                string.IsNullOrWhiteSpace(request.Message))
+                return false;
+
+            return await TrainerRepository.CreateAnnouncementAsync(
+                trainerId,
+                request.TrainingSessionId,
+                request.Title.Trim(),
+                request.Message.Trim());
+        }
+
+        private string GetCurrentTrainerId()
+        {
+            var trainerId = _userContext.TrainerId;
+            if (string.IsNullOrEmpty(trainerId))
+            {
+                throw new Exception("Trainer ID not found in context");
+            }
+
+            return trainerId;
         }
     }
 }

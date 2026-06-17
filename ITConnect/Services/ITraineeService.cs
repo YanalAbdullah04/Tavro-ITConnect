@@ -14,5 +14,6 @@ namespace ITConnect.Services
         Task<bool> SubmitTaskAsync(string taskAssignmentId, string repo, string branch, string? commitSha, string repoUrl);
         Task<TaskSubmission?> GetSubmissionAsync(string taskAssignmentId);
         Task<TaskAssigementsAndSubmissionsResponseModel?> GetTraineeTasksAndSubmissionsAsync(string traineeId);
+        Task<bool> EvaluateTaskAsync(string taskAssignmentId, string? feedback, string? grade);
     }
 }

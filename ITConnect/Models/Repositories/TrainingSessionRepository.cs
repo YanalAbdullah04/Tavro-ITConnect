@@ -77,6 +77,8 @@ namespace ITConnect.Models.Repositories
                 StudentId = t.Id,
                 StudentName = t.Name,
                 Email = t.User.Email,
+                TrainingId = session.Id,
+                TrainingTitle = session.Name,
                 NumberOfTasks = Db.TaskAssignments.Count(ta => ta.TraineeId == t.Id && ta.ApplicationTask.TrainingSessionId == session.Id)
             }).ToListAsync();
 

@@ -10,6 +10,11 @@ namespace ITConnect.Data.ResponsesModel.TrainerResponseModels
         public string TaskAssignmentId { get; set; }
         public string TaskTitle { get; set; }
         public string Status { get; set; }
+        public string? TraineeId { get; set; }
+        public string? TraineeName { get; set; }
+        public string? TraineeEmail { get; set; }
+        public string? TrainingSessionId { get; set; }
+        public string? TrainingSessionName { get; set; }
         public DateTime? Deadline { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public string? Feedback { get; set; }

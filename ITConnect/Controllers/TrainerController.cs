@@ -1,4 +1,5 @@
 using ITConnect.Data.RequestsModel.TrainerResponse;
+using ITConnect.Data.RequestsModel.TrainerDto;
 using ITConnect.Data.ResponsesModel;
 using ITConnect.Data.ResponsesModel.TrainerResponseModels;
 using ITConnect.Iservices;
@@ -68,6 +69,74 @@ namespace ITConnect.Controllers
             if (result == null)
                 return NotFound();
             return Ok(result);
+        }
+
+        [Authorize(Roles = "Trainer")]
+        [HttpGet("Sessions")]
+        public async Task<ActionResult<PagedResults<TrainingDtoInTrainerOverview>>> GetSessions(
+            [FromQuery] string? SearchString,
+            [FromQuery] int CurentPage = 1,
+            [FromQuery] int PageSize = 6)
+        {
+            var result = await TrainerService.GetTrainerSessionsAsync(SearchString, CurentPage, PageSize);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Trainer")]
+        [HttpGet("Trainees")]
+        public async Task<ActionResult<PagedResults<StudentWithinTraining>>> GetTrainees(
+            [FromQuery] string? SearchString,
+            [FromQuery] string? TrainingSessionId,
+            [FromQuery] int CurentPage = 1,
+            [FromQuery] int PageSize = 8)
+        {
+            var result = await TrainerService.GetTrainerTraineesAsync(SearchString, TrainingSessionId, CurentPage, PageSize);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Trainer")]
+        [HttpGet("Evaluations")]
+        public async Task<ActionResult<PagedResults<TrainerTaskSubmissionsDto>>> GetEvaluations(
+            [FromQuery] string? SearchString,
+            [FromQuery] string? Status,
+            [FromQuery] string? TrainingSessionId,
+            [FromQuery] string? TraineeId,
+            [FromQuery] int CurentPage = 1,
+            [FromQuery] int PageSize = 8)
+        {
+            var result = await TrainerService.GetTaskDeliverablesAsync(SearchString, Status, TrainingSessionId, TraineeId, CurentPage, PageSize);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Trainer")]
+        [HttpGet("Evaluations/Meta")]
+        public async Task<ActionResult<TaskEvaluationsResponse>> GetEvaluationsMeta()
+        {
+            var result = await TrainerService.GetTaskEvaluationsMetaAsync();
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Trainer")]
+        [HttpGet("Announcements")]
+        public async Task<ActionResult<PagedResults<TrainerAnnouncementResponse>>> GetAnnouncements(
+            [FromQuery] string? SearchString,
+            [FromQuery] string? TrainingSessionId,
+            [FromQuery] int CurentPage = 1,
+            [FromQuery] int PageSize = 5)
+        {
+            var result = await TrainerService.GetAnnouncementsAsync(SearchString, TrainingSessionId, CurentPage, PageSize);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Trainer")]
+        [HttpPost("Announcements")]
+        public async Task<IActionResult> CreateAnnouncement([FromBody] AnnouncementRequest request)
+        {
+            var result = await TrainerService.CreateAnnouncementAsync(request);
+            if (!result)
+                return BadRequest(new { message = "Failed to send announcement. Check the session and message details." });
+
+            return NoContent();
         }
 
         [Authorize(Roles = "Trainer")]
