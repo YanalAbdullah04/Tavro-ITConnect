@@ -102,5 +102,12 @@ namespace ITConnect.Services
             if (string.IsNullOrEmpty(traineeId)) return null;
             return await traineeRepository.GetTraineeTasksAndSubmissionsAsync(traineeId);
         }
+
+        public async Task<bool> EvaluateTaskAsync(string taskAssignmentId, string? feedback, string? grade)
+        {
+            var trainerId = userContext.TrainerId;
+            if (string.IsNullOrEmpty(trainerId)) return false;
+            return await traineeRepository.EvaluateTaskAsync(trainerId, taskAssignmentId, feedback, grade);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using ITConnect.Data.RequestsModel.TrainerDto;
 using ITConnect.Data.RequestsModel.TraineeDtos;
 using ITConnect.Data.ResponsesModel.TraineeResponseModels;
 using ITConnect.Data.ResponsesModel.TrainerResponseModels;
@@ -109,6 +110,19 @@ namespace ITConnect.Controllers
             var result = await traineeService.GetTraineeTasksAndSubmissionsAsync(id.ToString());
             if (result == null) return NotFound();
             return Ok(result);
+        }
+
+        [Authorize(Roles = "Trainer")]
+        [HttpPut("TaskAssignment/{taskAssignmentId:guid}/Evaluation")]
+        public async Task<IActionResult> EvaluateTask(Guid taskAssignmentId, [FromBody] TaskEvaluationRequest request)
+        {
+            var result = await traineeService.EvaluateTaskAsync(taskAssignmentId.ToString(), request.Feedback, request.Grade);
+            if (!result)
+            {
+                return BadRequest(new { message = "Failed to evaluate task. Make sure the submitted mission belongs to your session." });
+            }
+
+            return NoContent();
         }
     }
 }

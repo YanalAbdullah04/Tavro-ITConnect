@@ -107,6 +107,7 @@ namespace ITConnect.Models.Repositories
                 PendingEvaluationsCount = Db.TaskAssignments.Count(ta =>
                     ta.Trainee.TrainingSession.TrainerId == TrainerId &&
                     ta.Status &&
+                    Db.TaskSubmissions.Any(ts => ts.TaskAssignmentId == ta.Id) &&
                     ta.Feedback == null &&
                     ta.Grad == null),
                 TrainingDto = Db.TrainingSessions.Where(x => x.TrainerId == TrainerId).Select(tr => new TrainingDtoInTrainerOverview()
