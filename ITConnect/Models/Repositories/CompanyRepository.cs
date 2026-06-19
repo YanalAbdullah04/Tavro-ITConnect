@@ -44,5 +44,67 @@ namespace ITConnect.Models.Repositories
                 })
                 .ToListAsync();
         }
+
+        public async Task<List<CompanyTraineeResponse>> GetCompanyTraineesAsync(string companyId, string? searchQuery)
+        {
+            var query = Db.Trainees
+                .IgnoreQueryFilters()
+                .Where(t => t.TrainingSession.CompanyId == companyId);
+
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                query = query.Where(t =>
+                    t.Name.Contains(searchQuery) ||
+                    t.TrainingSession.Name.Contains(searchQuery));
+            }
+
+            return await query
+                .Select(t => new CompanyTraineeResponse
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Email = t.User.Email,
+                    TrainingSessionName = t.TrainingSession.Name
+                })
+                .ToListAsync();
+        }
+
+        public async Task<bool> DeleteCompanyTraineeAsync(string companyId, string traineeId)
+        {
+            var trainee = await Db.Trainees
+                .IgnoreQueryFilters()
+                .Include(t => t.TrainingSession)
+                .SingleOrDefaultAsync(t => t.Id == traineeId && t.TrainingSession.CompanyId == companyId);
+
+            if (trainee == null) return false;
+
+            // Remove task submissions for this trainee
+            var submissions = await Db.TaskSubmissions
+                .IgnoreQueryFilters()
+                .Where(ts => ts.SubmittedBy == traineeId)
+                .ToListAsync();
+            Db.TaskSubmissions.RemoveRange(submissions);
+
+            // Remove task assignments for this trainee
+            var assignments = await Db.TaskAssignments
+                .IgnoreQueryFilters()
+                .Where(ta => ta.TraineeId == traineeId)
+                .ToListAsync();
+            Db.TaskAssignments.RemoveRange(assignments);
+
+            // Remove applicant records for this trainee in this company
+            var applicants = await Db.Applicants
+                .IgnoreQueryFilters()
+                .Where(a => a.TraineeId == traineeId && a.CompanyId == companyId)
+                .ToListAsync();
+            Db.Applicants.RemoveRange(applicants);
+
+            // Unlink from company and training session
+            trainee.TrainingSessionId = null;
+            trainee.CompanyId = null;
+            Db.Trainees.Update(trainee);
+
+            return await Db.SaveChangesAsync() > 0;
+        }
     }
 }

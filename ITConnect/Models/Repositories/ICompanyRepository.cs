@@ -9,5 +9,7 @@ namespace ITConnect.Models.Repositories
     {
         Task<List<CompanyResponse>> GetCompanyResponseAsync();
         Task<List<CompanyTrackResponse>> GetCompanyTracksAsync(string companyId);
+        Task<List<CompanyTraineeResponse>> GetCompanyTraineesAsync(string companyId, string? searchQuery);
+        Task<bool> DeleteCompanyTraineeAsync(string companyId, string traineeId);
     }
 }

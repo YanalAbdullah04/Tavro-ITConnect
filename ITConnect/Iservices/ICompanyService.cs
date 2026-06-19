@@ -8,5 +8,7 @@ namespace ITConnect.Iservices
     {
         Task<List<CompanyResponse>> GetCompanyResponseAsync();
         Task<List<CompanyTrackResponse>> GetCompanyTracksAsync(string companyId);
+        Task<List<CompanyTraineeResponse>> GetCompanyTraineesAsync(string? searchQuery);
+        Task<bool> DeleteCompanyTraineeAsync(string traineeId);
     }
 }
