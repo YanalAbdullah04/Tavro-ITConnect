@@ -20,6 +20,8 @@ namespace ITConnect.Data.ResponsesModel.TraineeResponseModels
         public string TaskTitle { get; set; }
         public string Status { get; set; }
         public DateTime AssigedAtDate { get; set; }
+        public string? Feedback { get; set; }
+        public string? Grad { get; set; }
 
     }
     public class TraineeAnnouncementDto
