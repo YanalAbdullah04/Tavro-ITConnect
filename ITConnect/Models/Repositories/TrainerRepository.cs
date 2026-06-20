@@ -37,7 +37,7 @@ namespace ITConnect.Models.Repositories
                 x.User.Email.Contains(searchstring) ||
                 (x.Specialization != null && x.Specialization.Contains(searchstring))
                 );
-            var result = query.Select(t => new TrainerResponse()
+            var result = query.OrderByDescending(t => t.CreatedAt).Select(t => new TrainerResponse()
             {
                 Specialization = t.Specialization,
                 Email = t.User.Email,
@@ -57,6 +57,7 @@ namespace ITConnect.Models.Repositories
             return Db.TrainingSessions
                 .IgnoreQueryFilters()
                 .Where(ts => ts.TrainerId == trainerId)
+                .OrderByDescending(ts => ts.CreatedAt)
                 .Select(ts => new TrainingSummaryDto
                 {
                     Title = ts.Name,
@@ -71,6 +72,7 @@ namespace ITConnect.Models.Repositories
             return Db.Trainees
                 .IgnoreQueryFilters()
                 .Where(t => t.TrainingSession.Trainer.Id == trainerId)
+                .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new TraineeUnderTrainerDto
                 {
                     StudentName = t.Name,
@@ -142,7 +144,7 @@ namespace ITConnect.Models.Repositories
             }
 
             var result = query
-                .OrderByDescending(ts => ts.StartDate)
+                .OrderByDescending(ts => ts.CreatedAt)
                 .Select(ts => new TrainingDtoInTrainerOverview
                 {
                     Id = ts.Id,
@@ -175,7 +177,7 @@ namespace ITConnect.Models.Repositories
             }
 
             var result = query
-                .OrderBy(t => t.Name)
+                .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new StudentWithinTraining
                 {
                     StudentId = t.Id,

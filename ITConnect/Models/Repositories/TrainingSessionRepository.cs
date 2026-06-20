@@ -25,7 +25,7 @@ namespace ITConnect.Models.Repositories
 
         public   IQueryable<TrainingSessionResponse> GetTrainingSessionResponseQuery()
         {
-            var result = Db.TrainingSessions.Select(x =>
+            var result = Db.TrainingSessions.OrderByDescending(x => x.CreatedAt).Select(x =>
                 new TrainingSessionResponse()
                 {
                     Id = x.Id,
@@ -135,6 +135,27 @@ namespace ITConnect.Models.Repositories
             }
 
             return await Db.SaveChangesAsync() > 0;
+        }
+
+        public async Task ReassignTrainerAsync(string sessionId, string newTrainerId)
+        {
+            var tasks = await Db.ApplicationTask
+                .IgnoreQueryFilters()
+                .Where(t => t.TrainingSessionId == sessionId)
+                .ToListAsync();
+
+            foreach (var task in tasks)
+                task.TrainerId = newTrainerId;
+
+            var submissions = await Db.TaskSubmissions
+                .IgnoreQueryFilters()
+                .Where(ts => ts.TrainingSessionId == sessionId)
+                .ToListAsync();
+
+            foreach (var submission in submissions)
+                submission.SubmittedTo = newTrainerId;
+
+            await Db.SaveChangesAsync();
         }
     }
 }

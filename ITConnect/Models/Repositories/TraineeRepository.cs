@@ -87,6 +87,7 @@ namespace ITConnect.Models.Repositories
             return Db.TaskAssignments
                 .IgnoreQueryFilters()
                 .Where(ta => ta.TraineeId == traineeId)
+                .OrderByDescending(ta => ta.CreatedAt)
                 .Select(ta => new TraineeTaskAssigenmentDto
                 {
                     TaskAssignmentId = ta.Id,
@@ -101,6 +102,7 @@ namespace ITConnect.Models.Repositories
             return Db.Announcements
                 .IgnoreQueryFilters()
                 .Where(a => a.TrainingSessionId == trainingSessionId)
+                .OrderByDescending(a => a.CreatedAt)
                 .Select(a => new TraineeAnnouncementDto
                 {
                     AnnouncementId = a.Id,
@@ -198,6 +200,7 @@ namespace ITConnect.Models.Repositories
             var tasks = await Db.TaskAssignments
                 .IgnoreQueryFilters()
                 .Where(ta => ta.TraineeId == traineeId)
+                .OrderByDescending(ta => ta.CreatedAt)
                 .Select(ta => new TrainerTaskSubmissionsDto
                 {
                     TaskAssignmentId = ta.Id,

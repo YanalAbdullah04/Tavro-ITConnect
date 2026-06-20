@@ -38,7 +38,7 @@ namespace ITConnect.Models.Repository.cs
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await dbset.ToListAsync();
+            return await dbset.OrderByDescending(x => x.CreatedAt).ToListAsync();
         }
 
         public async Task<bool> AddAsync(T entity)

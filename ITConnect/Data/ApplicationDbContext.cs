@@ -125,8 +125,28 @@ public class ApplicationDbContext : IdentityDbContext
 
     }
 
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var entries = ChangeTracker
+            .Entries()
+            .Where(e => e.Entity is BaseEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
 
+        foreach (var entityEntry in entries)
+        {
+            var baseEntity = (BaseEntity)entityEntry.Entity;
 
+            if (entityEntry.State == EntityState.Added)
+            {
+                baseEntity.CreatedAt = DateTime.UtcNow;
+            }
+            else if (entityEntry.State == EntityState.Modified)
+            {
+                entityEntry.Property("CreatedAt").IsModified = false;
+            }
+        }
+
+        return base.SaveChangesAsync(cancellationToken);
+    }
 }
 
 
