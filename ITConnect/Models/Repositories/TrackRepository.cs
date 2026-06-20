@@ -1,4 +1,4 @@
-﻿using ITConnect.Data;
+using ITConnect.Data;
 using ITConnect.Data.RequestsModel;
 using ITConnect.Data.ResponseModel;
 using ITConnect.Models.Repository.cs;
@@ -37,7 +37,7 @@ namespace ITConnect.Models.Repositories
 
 
         public IQueryable<TrackResponse> GetTrackResponseQuery() {
-           var response= Db.Tracks.Select(x =>
+           var response= Db.Tracks.OrderByDescending(x => x.CreatedAt).Select(x =>
                     new TrackResponse()
                     {
                         Description = x.Description,

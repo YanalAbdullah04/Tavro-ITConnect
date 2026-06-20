@@ -25,7 +25,7 @@ namespace ITConnect.Models.Repositories
         public IQueryable<PostResponse> GetPostResponseeQuery()
         {
 
-            var response = Db.Posts.Select(p =>
+            var response = Db.Posts.OrderByDescending(p => p.CreatedAt).Select(p =>
             new PostResponse()
             {
                 Deadline = p.Deadline,
@@ -61,7 +61,7 @@ namespace ITConnect.Models.Repositories
 
             var hasTraineeId = !string.IsNullOrEmpty(traineeId);
 
-            var result = query.Select(p => new InternshipResponse()
+            var result = query.OrderByDescending(p => p.CreatedAt).Select(p => new InternshipResponse()
             {
                 PostId = p.Id,
                 Title = p.Title,

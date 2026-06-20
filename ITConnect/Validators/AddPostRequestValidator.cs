@@ -9,7 +9,9 @@ namespace ITConnect.Validators
         {
             RuleFor(x => x.Title).NotEmpty();
             RuleFor(x => x.Description).NotEmpty();
-            RuleFor(x => x.Deadline).NotEmpty();
+            RuleFor(x => x.Deadline)
+                .NotEmpty()
+                .GreaterThanOrEqualTo(System.DateTime.Today).WithMessage("Deadline must be today or in the future.");
             RuleFor(x => x.ReqSkills).NotEmpty();
             RuleFor(x => x.Responsibility).NotEmpty();
             RuleFor(x => x.TrainingSessionId).NotEmpty();

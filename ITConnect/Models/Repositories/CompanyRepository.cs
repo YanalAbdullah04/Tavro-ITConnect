@@ -18,6 +18,7 @@ namespace ITConnect.Models.Repositories
         {
             return await Db.Companies
                 .IgnoreQueryFilters()
+                .OrderByDescending(c => c.CreatedAt)
                 .Select(c => new CompanyResponse
                 {
                     CompanyId = c.Id,
@@ -35,6 +36,7 @@ namespace ITConnect.Models.Repositories
             return await Db.Tracks
                 .IgnoreQueryFilters()
                 .Where(t => t.CompanyId == companyId)
+                .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new CompanyTrackResponse
                 {
                     Id = t.Id,
@@ -59,6 +61,7 @@ namespace ITConnect.Models.Repositories
             }
 
             return await query
+                .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new CompanyTraineeResponse
                 {
                     Id = t.Id,

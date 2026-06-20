@@ -87,12 +87,15 @@ namespace ITConnect.Models.Repositories
             return Db.TaskAssignments
                 .IgnoreQueryFilters()
                 .Where(ta => ta.TraineeId == traineeId)
+                .OrderByDescending(ta => ta.CreatedAt)
                 .Select(ta => new TraineeTaskAssigenmentDto
                 {
                     TaskAssignmentId = ta.Id,
                     TaskTitle = ta.ApplicationTask.Title,
-                    Status = Db.TaskSubmissions.Any(ts => ts.TaskAssignmentId == ta.Id) ? "Submitted" : (ta.Status ? "Completed" : "Pending"),
-                    AssigedAtDate = ta.AssignedAt
+                    Status = (ta.Feedback != null || ta.Grad != null) ? "Completed" : (Db.TaskSubmissions.Any(ts => ts.TaskAssignmentId == ta.Id) ? "Submitted" : "Pending"),
+                    AssigedAtDate = ta.AssignedAt,
+                    Feedback = ta.Feedback,
+                    Grad = ta.Grad
                 });
         }
 
@@ -101,6 +104,7 @@ namespace ITConnect.Models.Repositories
             return Db.Announcements
                 .IgnoreQueryFilters()
                 .Where(a => a.TrainingSessionId == trainingSessionId)
+                .OrderByDescending(a => a.CreatedAt)
                 .Select(a => new TraineeAnnouncementDto
                 {
                     AnnouncementId = a.Id,
@@ -198,6 +202,7 @@ namespace ITConnect.Models.Repositories
             var tasks = await Db.TaskAssignments
                 .IgnoreQueryFilters()
                 .Where(ta => ta.TraineeId == traineeId)
+                .OrderByDescending(ta => ta.CreatedAt)
                 .Select(ta => new TrainerTaskSubmissionsDto
                 {
                     TaskAssignmentId = ta.Id,

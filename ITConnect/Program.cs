@@ -130,6 +130,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
 
 var app = builder.Build();
 app.UseCors("AllowAll");
+app.UseMiddleware<ITConnect.Middleware.GlobalExceptionHandlingMiddleware>();
 app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI(); 

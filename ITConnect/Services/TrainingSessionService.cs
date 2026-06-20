@@ -53,6 +53,9 @@ namespace ITConnect.Services
             var trainingSession = await trainingSessionRepository.GetByIdAsync(updateTrainingSessionRequest.Id);
             if (trainingSession == null)
                 return false;
+
+            var oldTrainerId = trainingSession.TrainerId;
+
             trainingSession.Name = updateTrainingSessionRequest.Name;
             trainingSession.IsPaid = updateTrainingSessionRequest.IsPaid;
             trainingSession.Location = updateTrainingSessionRequest.Location;
@@ -74,6 +77,11 @@ namespace ITConnect.Services
             trainingSession.TrackId = updateTrainingSessionRequest.TrackId;
             trainingSession.TrainerId = updateTrainingSessionRequest.TrainerId;
             trainingSession.TrainingStatus = updateTrainingSessionRequest.TrainingStatus;
+
+            if (oldTrainerId != updateTrainingSessionRequest.TrainerId)
+            {
+                await trainingSessionRepository.ReassignTrainerAsync(trainingSession.Id, updateTrainingSessionRequest.TrainerId);
+            }
 
             return await trainingSessionRepository.UpdateAsync(trainingSession.Id, trainingSession);
         }

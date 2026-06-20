@@ -90,7 +90,7 @@ namespace ITConnect.Models.Repositories
             if (!string.IsNullOrEmpty(trackid))
                 query = query.Where(x => x.TrainingSession.TrackId.Equals(trackid));
 
-            var result = query.Select(a => new ApplicantResponse()
+            var result = query.OrderByDescending(a => a.CreatedAt).Select(a => new ApplicantResponse()
             {
                 TraineeEmail = a.Trainee.User.Email,
                 ApplicantId = a.Id,
