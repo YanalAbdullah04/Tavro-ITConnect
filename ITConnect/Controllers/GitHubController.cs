@@ -293,12 +293,32 @@ public class GitHubController : ControllerBase
     }
 
     [Authorize(Roles = "Trainer,Trainee")]
+    [HttpGet("content/{traineeId:guid}/{owner}/{repoName}")]
     [HttpGet("content/{traineeId:guid}/{owner}/{repoName}/{branch}")]
     [HttpGet("content/{traineeId:guid}/{owner}/{repoName}/{branch}/{*filePath}")]
-    public async Task<IActionResult> GetFileContent(string traineeId, string owner, string repoName, string branch, string? filePath = null)
+    public async Task<IActionResult> GetFileContent(
+        string traineeId, 
+        string owner, 
+        string repoName, 
+        string? branch = null, 
+        string? filePath = null)
     {
         var trainee = await GetAccessibleTrainee(traineeId);
         if (trainee.Result != null) return trainee.Result;
+
+        if (string.IsNullOrWhiteSpace(branch) && Request != null)
+        {
+            branch = Request.Query["branch"].FirstOrDefault();
+        }
+        if (string.IsNullOrWhiteSpace(filePath) && Request != null)
+        {
+            filePath = Request.Query["filePath"].FirstOrDefault();
+        }
+
+        if (string.IsNullOrWhiteSpace(branch))
+        {
+            return BadRequest(new { message = "Branch parameter is required." });
+        }
 
         try
         {
