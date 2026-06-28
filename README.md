@@ -1,4 +1,5 @@
 # Tavro
+> ℹ️ **Rebranding Note:** This project was originally named **ITConnect**. It has been rebranded to **Tavro** with a completely new design, modern user identity, and enhanced user experience.
 
 **Tavro** is a comprehensive trainee management and collaboration platform designed to bridge the gap between IT trainees (students), trainers (mentors/instructors), and companies within the IT ecosystem. 
 
@@ -31,7 +32,7 @@ In traditional IT training and bootcamps, managing student progress is often fra
 * **Framework:** .NET 8 / ASP.NET Core Web API
 * **Database:** Microsoft SQL Server (MSSQL)
 * **ORM:** Entity Framework Core (EF Core)
-* **Authentication:** JWT (JSON Web Tokens) with role-based authorization (`Admin`, `Trainer`, `Trainee`, `Company`)
+* **Authentication:** JWT (JSON Web Tokens) with role-based authorization ( `Trainer`, `Trainee`, `Company`)
 * **Integrations:** GitHub REST API (using Octokit and JWT-based GitHub App Authentication)
 
 ### Frontend
@@ -106,7 +107,7 @@ Because GitHub needs to redirect users back to a public URL during the OAuth flo
    ```
 3. Start the development server:
    ```bash
-   npm run dev
+   npm run preview
    ```
    *The frontend will run on `http://localhost:4173`.*
 
