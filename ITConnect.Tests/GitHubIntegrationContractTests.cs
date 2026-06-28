@@ -23,7 +23,7 @@ public class GitHubIntegrationContractTests
         dependencies.GitHubService.Setup(service => service.GetInstallationAsync(321)).ReturnsAsync(Installation(321));
         var controller = dependencies.CreateController();
 
-        var installResult = Assert.IsType<OkObjectResult>(controller.GetInstallUrl().Result);
+        var installResult = Assert.IsType<OkObjectResult>((await controller.GetInstallUrl()).Result);
         var installUrl = Assert.IsType<GitHubInstallUrlResponse>(installResult.Value).InstallUrl;
         var state = GetQueryValue(installUrl, "state");
         Assert.DoesNotContain(trainee.Id, state);
@@ -75,6 +75,43 @@ public class GitHubIntegrationContractTests
         dependencies.Repository.Verify(
             repository => repository.UpdateAsync(disconnected.Id, It.Is<Trainee>(trainee => trainee.GithubInstallationId == null)),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task GetFileContentClearsRemovedInstallation()
+    {
+        var dependencies = CreateDependencies(null, trainerId: "trainer-1");
+        var trainee = new Trainee { Id = "trainee-1", Name = "Trainee", GithubInstallationId = 321 };
+        dependencies.Repository.Setup(repository => repository.GetByIdAsync(trainee.Id)).ReturnsAsync(trainee);
+        dependencies.Repository.Setup(repository => repository.UpdateAsync(trainee.Id, trainee)).ReturnsAsync(true);
+        dependencies.GitHubService
+            .Setup(service => service.GetFileContentAsync(321, "owner", "repo", "main", null))
+            .ThrowsAsync(new HttpRequestException("Not Found", null, System.Net.HttpStatusCode.NotFound));
+        var controller = dependencies.CreateController();
+
+        var result = await controller.GetFileContent(trainee.Id, "owner", "repo", "main");
+
+        var conflict = Assert.IsType<ConflictObjectResult>(result);
+        Assert.Contains("Repository not found or access denied", conflict.Value!.ToString()!);
+        Assert.Null(trainee.GithubInstallationId);
+        dependencies.Repository.Verify(repository => repository.UpdateAsync(trainee.Id, trainee), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetFileContentWorksWithBranchContainingSlash()
+    {
+        var dependencies = CreateDependencies(null, trainerId: "trainer-1");
+        var trainee = new Trainee { Id = "trainee-1", Name = "Trainee", GithubInstallationId = 321 };
+        dependencies.Repository.Setup(repository => repository.GetByIdAsync(trainee.Id)).ReturnsAsync(trainee);
+        dependencies.GitHubService
+            .Setup(service => service.GetFileContentAsync(321, "owner", "repo", "feature/Post-Resource", "src/App.tsx"))
+            .ReturnsAsync("[]");
+        var controller = dependencies.CreateController();
+
+        var result = await controller.GetFileContent(trainee.Id, "owner", "repo", "feature/Post-Resource", "src/App.tsx");
+
+        Assert.IsType<ContentResult>(result);
+        dependencies.GitHubService.Verify(service => service.GetFileContentAsync(321, "owner", "repo", "feature/Post-Resource", "src/App.tsx"), Times.Once);
     }
 
     [Fact]

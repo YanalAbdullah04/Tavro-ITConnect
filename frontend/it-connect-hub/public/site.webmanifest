@@ -1,0 +1,17 @@
+{
+  "name": "Tavro",
+  "short_name": "Tavro",
+  "description": "Grow through real work with Tavro Trail missions, mentor feedback, and visible developer progress.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07090d",
+  "theme_color": "#16d6b2",
+  "icons": [
+    {
+      "src": "/assets/tavro-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,331 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 30% 4%;
+    --foreground: 240 6% 96%;
+
+    --card: 222 25% 9%;
+    --card-foreground: 240 6% 96%;
+
+    --popover: 222 26% 8%;
+    --popover-foreground: 240 6% 96%;
+
+    --primary: 161 78% 56%;
+    --primary-foreground: 220 30% 6%;
+
+    --secondary: 222 20% 14%;
+    --secondary-foreground: 240 6% 94%;
+
+    --muted: 222 18% 13%;
+    --muted-foreground: 225 9% 60%;
+
+    --accent: 31 90% 66%;
+    --accent-foreground: 220 30% 6%;
+
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 16% 20%;
+    --input: 222 16% 20%;
+    --ring: 161 78% 56%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 220 30% 5%;
+    --sidebar-foreground: 240 6% 96%;
+    --sidebar-primary: 161 78% 56%;
+    --sidebar-primary-foreground: 220 30% 6%;
+    --sidebar-accent: 222 18% 13%;
+    --sidebar-accent-foreground: 240 6% 94%;
+    --sidebar-border: 222 16% 20%;
+    --sidebar-ring: 161 78% 56%;
+  }
+
+  .dark {
+    --background: 220 30% 4%;
+    --foreground: 240 6% 96%;
+
+    --card: 222 25% 9%;
+    --card-foreground: 240 6% 96%;
+
+    --popover: 222 26% 8%;
+    --popover-foreground: 240 6% 96%;
+
+    --primary: 161 78% 56%;
+    --primary-foreground: 220 30% 6%;
+
+    --secondary: 222 20% 14%;
+    --secondary-foreground: 240 6% 94%;
+
+    --muted: 222 18% 13%;
+    --muted-foreground: 225 9% 60%;
+
+    --accent: 31 90% 66%;
+    --accent-foreground: 220 30% 6%;
+
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 16% 20%;
+    --input: 222 16% 20%;
+    --ring: 161 78% 56%;
+
+    --sidebar-background: 220 30% 5%;
+    --sidebar-foreground: 240 6% 96%;
+    --sidebar-primary: 161 78% 56%;
+    --sidebar-primary-foreground: 220 30% 6%;
+    --sidebar-accent: 222 18% 13%;
+    --sidebar-accent-foreground: 240 6% 94%;
+    --sidebar-border: 222 16% 20%;
+    --sidebar-ring: 161 78% 56%;
+  }
+  
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    background-image:
+      linear-gradient(135deg, hsla(161, 78%, 56%, 0.08), transparent 32%),
+      linear-gradient(225deg, hsla(31, 90%, 66%, 0.06), transparent 30%),
+      linear-gradient(to bottom, hsl(220 30% 5%), hsl(220 30% 4%));
+    background-attachment: fixed;
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+
+  ::selection {
+    @apply bg-primary/35 text-foreground;
+  }
+}
+
+@layer components {
+  .app-grid-bg {
+    background-image:
+      linear-gradient(hsla(220, 18%, 42%, 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, hsla(220, 18%, 42%, 0.16) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center;
+  }
+
+  .tavro-grid-bg {
+    background-image:
+      linear-gradient(hsla(220, 18%, 42%, 0.14) 1px, transparent 1px),
+      linear-gradient(90deg, hsla(220, 18%, 42%, 0.14) 1px, transparent 1px);
+    background-position: center;
+    background-size: 42px 42px;
+  }
+
+  .surface-panel {
+    @apply rounded-2xl border border-border/80 bg-card/90 shadow-[0_16px_40px_-30px_hsl(var(--primary))] backdrop-blur-xl;
+  }
+
+  .text-gradient-blue {
+    background-image: linear-gradient(120deg, hsl(var(--foreground)), hsl(var(--primary)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-tavro {
+    background-image: linear-gradient(120deg, hsl(var(--foreground)), hsl(var(--primary)) 54%, hsl(var(--accent)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .tavro-kicker {
+    @apply inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 font-mono text-xs font-medium text-primary;
+  }
+
+  .fade-up-item,
+  .tavro-reveal {
+    opacity: 0;
+    animation: fade-up 0.72s ease forwards;
+  }
+
+  .tavro-path {
+    opacity: 0.9;
+  }
+
+  .tavro-path-highlight {
+    stroke-dasharray: 190 760;
+    animation: path-flow 7s ease-in-out infinite;
+  }
+
+  .tavro-trail-shadow {
+    stroke: hsl(var(--primary) / 0.11);
+    stroke-width: 16;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 24px hsl(var(--primary) / 0.18));
+  }
+
+  .tavro-trail-line {
+    stroke: hsl(var(--border) / 0.92);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 7 14;
+  }
+
+  .tavro-trail-active {
+    stroke: hsl(var(--primary));
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 240 1120;
+    animation: tavro-trail-flow 7.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 16px hsl(var(--primary) / 0.25));
+  }
+
+  .tavro-trail-node {
+    transform: translateY(0);
+    transition: transform 220ms ease, filter 220ms ease;
+    animation: tavro-node-pulse 4.6s ease-in-out infinite;
+  }
+
+  .tavro-trail-node:hover {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 16px hsl(var(--primary) / 0.2));
+  }
+
+  .tavro-story-rail {
+    pointer-events: none;
+    position: absolute;
+    bottom: 14rem;
+    display: none;
+    left: max(2rem, calc((100vw - 1180px) / 2));
+    top: 52rem;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, hsl(var(--primary) / 0.45), hsl(var(--border) / 0.6), transparent);
+  }
+
+  .tavro-story-rail::before,
+  .tavro-story-rail::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    height: 0.6rem;
+    width: 0.6rem;
+    transform: translateX(-50%);
+    border-radius: 9999px;
+    border: 1px solid hsl(var(--primary) / 0.5);
+    background: hsl(var(--background));
+    box-shadow: 0 0 24px hsl(var(--primary) / 0.35);
+  }
+
+  .tavro-story-rail::before {
+    top: 18%;
+  }
+
+  .tavro-story-rail::after {
+    bottom: 20%;
+  }
+
+  @media (min-width: 1024px) {
+    .tavro-story-rail {
+      display: block;
+    }
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes path-flow {
+  0% {
+    stroke-dashoffset: 720;
+    opacity: 0.1;
+  }
+
+  42% {
+    opacity: 0.9;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.18;
+  }
+}
+
+@keyframes tavro-trail-flow {
+  0% {
+    stroke-dashoffset: 1180;
+    opacity: 0.12;
+  }
+
+  38% {
+    opacity: 0.95;
+  }
+
+  72% {
+    opacity: 0.72;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.18;
+  }
+}
+
+@keyframes tavro-node-pulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    filter: none;
+  }
+
+  50% {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 14px hsl(var(--primary) / 0.16));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up-item,
+  .tavro-reveal,
+  .tavro-path-highlight,
+  .tavro-trail-active,
+  .tavro-trail-node {
+    animation: none;
+  }
+
+  .fade-up-item,
+  .tavro-reveal {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,18 @@
+classes: 
+
+1. user {id, name, email, password, phone_number, role, created_at}
+2. compnay {id, address,website_link, description, user_id}
+3. trainee {id, portofolio_link, resume_link, skills:JSON FORMAT, user_id, company_id, training_session_id}
+4. trainer {id, brief, specialization, github_username, user_id, company_id}
+5. github_account {id, user_id, github_user_id, github_username, is_role, access_token_enc, scope, connected_at, last_used_at}
+6. track {id, name, description, company_id}
+7. training_session {id, name, description, is_paid, location, start_date, end_date, seats_number, training_status,trackId, company_id, trainer_id}
+8. task {id, title, description, notes, assigned_at, deadline, attachment_link, training_session_id, trainer_id}
+9. task_assignment {id, task_id, trainee_id, status, assigned_at}
+10. task_submission {id, task_assignment_id, github_repo, github_branch, github_commit_sha, github_repo_url, submitted_at, submitted_by:trainee_id, submitted_to:trainer_id, training_session_id}
+11. post {id, title, description, deadline, req_skills:JSON FORMAT, responsibility:JSON FORMAT, benefits:JSON FORMAT, status, company_id, training_session_id:unique}
+12. applicant {id, traineeId, companyId, tranining_session_id, status, created_at}
+13. announcements {id, title, message, created_at, is_read, training_session_id}
+14. chat_session {id, trainer_id, trainee_id, training_session_id, created_at}
+15. chat_message {id, chat_session_id, sender_id, message_text, message_status, created_at}
+16. evaluate_task {id, grade, feedback, task_assignment_id}

@@ -38,7 +38,7 @@ namespace ITConnect.Tests
                 Name = "Session 1", 
                 Description = "Desc",
                 Location = "Remote",
-                TrainingStatus = "Active",
+                TrainingStatus = TrainingStatus.Active,
                 TrackId = "track1",
                 CompanyId = "company1",
                 TrainerId = "trainer1",

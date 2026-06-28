@@ -1,0 +1,19 @@
+ngrok http https://localhost:7272 --host-header=localhost:7272
+
+
+
+trainers :
+
+
+saleemtrainee@gmail.com:  Pass123456@   
+GitHubPass:Pass123456@saleemtrainee
+
+
+*****************************
+Trainees:
+
+yanalabdull@gmail.com
+Pass: YourPassword123!
+*********
+test@trainee1.com
+YourPassword123!

@@ -52,7 +52,7 @@ public class CompanyWorkspaceContractTests
             Name = createRequest.Name,
             Description = createRequest.Description,
             IsPaid = false,
-            TrainingStatus = "Pending",
+            TrainingStatus = TrainingStatus.Pending,
             Location = createRequest.Location,
             StartDate = createRequest.StartDate,
             EndDate = createRequest.EndDate,
@@ -87,7 +87,7 @@ public class CompanyWorkspaceContractTests
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddDays(30),
             SeatsNumber = 10,
-            TrainingStatus = "Pending"
+            TrainingStatus = TrainingStatus.Pending
         };
         var secondSession = new TrainingSession
         {
@@ -102,7 +102,7 @@ public class CompanyWorkspaceContractTests
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddDays(60),
             SeatsNumber = 12,
-            TrainingStatus = "Pending"
+            TrainingStatus = TrainingStatus.Pending
         };
         var post = new Post
         {

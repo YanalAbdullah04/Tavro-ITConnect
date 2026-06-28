@@ -152,7 +152,7 @@ public class TrainerWorkspaceContractTests
         Name = id,
         Description = "Session",
         Location = "Remote",
-        TrainingStatus = "Active",
+        TrainingStatus = TrainingStatus.Active,
         StartDate = DateTime.UtcNow,
         EndDate = DateTime.UtcNow.AddDays(30)
     };
